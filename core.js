@@ -1,14 +1,12 @@
-"use strict";
+"use strict"; // new
 
-// Ensure dependencies are available
+// Dependency check (removed illegal return statement)
 if (!window.jQuery || !window.alertify || !window.axios) {
-  console.error(
-    "Required dependencies (jQuery, alertify, axios) are not loaded."
-  );
-  return;
+  console.error("Required dependencies (jQuery, alertify, axios) are not loaded.");
+} else {
+  console.log("All dependencies are loaded");
 }
 
-// Initialize MAFIAMAR
 function initializeMAFIAMAR() {
   console.log("Initializing MAFIAMAR core...");
 
@@ -19,9 +17,7 @@ function initializeMAFIAMAR() {
   const autoSubmitForms = unsafeWindow.autoSubmitForms;
 
   if (!applicants || !visaConfigs || !captcha || !autoSubmitForms) {
-    console.error(
-      "Required global variables (applicants, visaConfigs, captcha, autoSubmitForms) are not defined."
-    );
+    console.error("Required global variables (applicants, visaConfigs, captcha, autoSubmitForms) are not defined.");
     return;
   }
 
@@ -71,7 +67,10 @@ function initializeMAFIAMAR() {
     const targetDiv = document.querySelector("#div-main");
     if (targetDiv) {
       targetDiv.parentNode.insertBefore(buttonContainer, targetDiv);
+    } else {
+      console.error("#div-main not found for category buttons");
     }
+
     const tryAgainLink = Array.from(
       document.querySelectorAll("a.btn.btn-primary")
     ).find(
@@ -94,10 +93,7 @@ function initializeMAFIAMAR() {
       pauseButton.style.marginLeft = "10px";
       pauseButton.className = "btn btn-secondary ms-2";
       pauseButton.innerHTML = '<i class="bi bi-pause-fill"></i>';
-      tryAgainLink.parentNode.insertBefore(
-        pauseButton,
-        tryAgainLink.nextSibling
-      );
+      tryAgainLink.parentNode.insertBefore(pauseButton, tryAgainLink.nextSibling);
 
       pauseButton.addEventListener("click", () => {
         isPaused = !isPaused;
@@ -119,12 +115,15 @@ function initializeMAFIAMAR() {
           }
         }
       }, 1000);
+    } else {
+      console.log("Try Again link not found");
     }
   }
 
   // Modal handling
   setTimeout(() => {
     $(".modal").modal("hide");
+    console.log("Hiding modals");
   }, 500);
 
   setTimeout(() => {
@@ -133,36 +132,44 @@ function initializeMAFIAMAR() {
     );
     if (button1) {
       button1.click();
+      console.log("Clicked onBioDisclaimerAccept button");
       setTimeout(() => {
         const button2 = document.querySelector(
           '.btn.btn-success.btn-block[type="button"][data-bs-dismiss="modal"][onclick="onDpAccept();"]'
         );
         if (button2) {
           button2.click();
+          console.log("Clicked onDpAccept button");
+        } else {
+          console.log("onDpAccept button not found");
         }
       }, 300);
+    } else {
+      console.log("onBioDisclaimerAccept button not found");
     }
   }, 400);
 
   // Redirect logic
   if (
     window.location.href ===
-      "https://www.blsspainmorocco.net/mar/account/changepassword?alert=True" ||
+    "https://www.blsspainmorocco.net/mar/account/changepassword?alert=True" ||
     window.location.href ===
-      "https://www.blsspainmorocco.net/MAR/account/changepassword?alert=True"
+    "https://www.blsspainmorocco.net/MAR/account/changepassword?alert=True"
   ) {
     window.location.href =
       "https://www.blsspainmorocco.net/mar/appointment/appointmentcaptcha";
+    console.log("Redirecting to appointmentcaptcha");
   }
 
   if (
     window.location.href ===
-      "https://www.blsspainmorocco.net/mar/Appointment/NewAppointment?msg=lfJQVX2NULaGjPKL6fTAx8BtSHJVTsEgaj1lwdqOSsc%3D" ||
+    "https://www.blsspainmorocco.net/mar/Appointment/NewAppointment?msg=lfJQVX2NULaGjPKL6fTAx8BtSHJVTsEgaj1lwdqOSsc%3D" ||
     window.location.href ===
-      "https://www.blsspainmorocco.net/MAR/Appointment/NewAppointment?msg=lfJQVX2NULaGjPKL6fTAx8BtSHJVTsEgaj1lwdqOSsc%3D"
+    "https://www.blsspainmorocco.net/MAR/Appointment/NewAppointment?msg=lfJQVX2NULaGjPKL6fTAx8BtSHJVTsEgaj1lwdqOSsc%3D"
   ) {
     window.location.href =
       "https://www.blsspainmorocco.net/mar/appointment/newappointment";
+    console.log("Redirecting to newappointment");
   }
 
   // Utility functions
@@ -219,6 +226,7 @@ function initializeMAFIAMAR() {
       setTimeout(function () {
         window.location.reload();
       }, 1000);
+      console.log("Reloading page due to error:", pageTitle);
     }
   }
 
@@ -241,14 +249,14 @@ function initializeMAFIAMAR() {
     button.style.fontSize = "16px";
     button.style.fontWeight = "bold";
     button.style.transition = "background-color 0.3s";
-    button.onmouseover = () =>
-      (button.style.backgroundColor = darkenColor(color));
+    button.onmouseover = () => (button.style.backgroundColor = darkenColor(color));
     button.onmouseout = () => (button.style.backgroundColor = color);
     button.onclick = onClick;
 
     const target = document.querySelector(targetSelector);
     if (target) {
       target.appendChild(button);
+      console.log(`Button '${text}' added to ${targetSelector}`);
     } else {
       console.error(`Target selector ${targetSelector} not found.`);
     }
@@ -275,6 +283,7 @@ function initializeMAFIAMAR() {
 
   function redirectTo(url) {
     window.location.href = url;
+    console.log(`Redirecting to ${url}`);
   }
 
   // Classes
@@ -285,6 +294,7 @@ function initializeMAFIAMAR() {
       $("#visaTypeMessage").remove();
       $("#PremiumTypeModel").remove();
       $("VisaTypeModel").remove();
+      console.log("Removed visa type messages and models");
 
       const waitForElements = () => {
         let categoryId,
@@ -381,9 +391,7 @@ function initializeMAFIAMAR() {
               (location) => location.Name === locationName
             );
             if (!selectedLocation) {
-              console.error(
-                `Location ${locationName} not found in locationData.`
-              );
+              console.error(`Location ${locationName} not found in locationData.`);
               return;
             }
             var dropdownlistLocation = $("#" + locationId).data(
@@ -391,14 +399,13 @@ function initializeMAFIAMAR() {
             );
             dropdownlistLocation.value(selectedLocation.Id);
             dropdownlistLocation.trigger("change");
+            console.log(`Selected location: ${locationName}`);
 
             var selectedVisaType = visaTypeFilterData.find(
               (visaType) => visaType.Name === visaTypeName
             );
             if (!selectedVisaType) {
-              console.error(
-                `Visa Type ${visaTypeName} not found in visaTypeFilterData.`
-              );
+              console.error(`Visa Type ${visaTypeName} not found in visaTypeFilterData.`);
               return;
             }
             var dropdownlistVisaType = $("#" + visaTypeId).data(
@@ -406,14 +413,13 @@ function initializeMAFIAMAR() {
             );
             dropdownlistVisaType.value(selectedVisaType.Id);
             dropdownlistVisaType.trigger("change");
+            console.log(`Selected visa type: ${visaTypeName}`);
 
             var selectedVisaSub = visasubIdFilterData.find(
               (visaSub) => visaSub.Name === visaSubName
             );
             if (!selectedVisaSub) {
-              console.error(
-                `Visa Sub Type ${visaSubName} not found in visasubIdFilterData.`
-              );
+              console.error(`Visa Sub Type ${visaSubName} not found in visasubIdFilterData.`);
               return;
             }
             var dropdownlistVisaSub = $("#" + visaSubTypeId).data(
@@ -421,14 +427,13 @@ function initializeMAFIAMAR() {
             );
             dropdownlistVisaSub.value(selectedVisaSub.Id);
             dropdownlistVisaSub.trigger("change");
+            console.log(`Selected visa sub type: ${visaSubName}`);
 
             var selectedCategory = categoryData.find(
               (category) => category.Name === categoryName
             );
             if (!selectedCategory) {
-              console.error(
-                `Category ${categoryName} not found in categoryData.`
-              );
+              console.error(`Category ${categoryName} not found in categoryData.`);
               return;
             }
             var dropdownlistCategory = $("#" + categoryId).data(
@@ -436,20 +441,20 @@ function initializeMAFIAMAR() {
             );
             dropdownlistCategory.value(selectedCategory.Id);
             dropdownlistCategory.trigger("change");
+            console.log(`Selected category: ${categoryName}`);
 
             if (membersName !== "I") {
               $("#familyDisclaimer").remove();
               var familyElement = $("#" + familyId);
               familyElement.click();
               OnFamilyAccept();
+              console.log("Family option selected");
 
               var selectedMembers = applicantsNoData.find(
                 (members) => members.Name === membersName
               );
               if (!selectedMembers) {
-                console.error(
-                  `Members ${membersName} not found in applicantsNoData.`
-                );
+                console.error(`Members ${membersName} not found in applicantsNoData.`);
                 return;
               }
               var dropdownlistMembers = $("#" + familyMemberId).data(
@@ -457,11 +462,17 @@ function initializeMAFIAMAR() {
               );
               dropdownlistMembers.value(selectedMembers.Id);
               dropdownlistMembers.trigger("change");
+              console.log(`Selected members: ${membersName}`);
             }
 
             if (/on|true/.test(autoSubmitForms?.visaType)) {
               var submitButton = document.querySelector("#btnSubmit");
-              submitButton.click();
+              if (submitButton) {
+                submitButton.click();
+                console.log("Auto-submitted visa type form");
+              } else {
+                console.error("#btnSubmit not found for auto-submit");
+              }
             } else {
               console.log(
                 "Auto-submit for Visa Type is disabled (autoSubmitForms.visaType is off)."
@@ -495,6 +506,7 @@ function initializeMAFIAMAR() {
 
     #hidePreloader() {
       $(".preloader").hide();
+      console.log("Hid preloader");
     }
 
     #makeLoaderDismissable() {
@@ -503,22 +515,37 @@ function initializeMAFIAMAR() {
                 onclick="window.HideLoader();">
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
+      console.log("Added dismissable loader button");
     }
 
     #removeRandomnessFromUi() {
-      $("#div-main > .container > .row > [class^=col-]").hide();
-      $("#div-main > .container > .row > :has(form)").addClass("mx-auto");
-      $(":has(> form)").removeAttr("class");
+      // Update selector based on current page structure
+      const mainContainer = $(".container:has(form)");
+      if (mainContainer.length) {
+        mainContainer.find("> .row > [class^=col-]").hide();
+        mainContainer.find("> .row > :has(form)").addClass("mx-auto");
+        $(":has(> form)").removeAttr("class");
+        console.log("Removed randomness from UI");
+      } else {
+        console.error("Main container with form not found for UI cleanup");
+      }
     }
 
     #enableCopyPasteInInputs() {
-      $(".entry-disabled:visible").on("copy paste", (evt) =>
-        evt.stopImmediatePropagation()
-      );
+      $("input[type='text']:visible").off("copy paste").on("copy paste", (evt) => {
+        evt.stopImmediatePropagation();
+      });
+      console.log("Enabled copy-paste in inputs");
     }
 
     #setReturnUrl() {
-      $("#ReturnUrl").val($(".new-app-active").attr("href"));
+      const newAppLink = $(".new-app-active");
+      if (newAppLink.length) {
+        $("#ReturnUrl").val(newAppLink.attr("href"));
+        console.log("Set ReturnUrl to:", newAppLink.attr("href"));
+      } else {
+        console.log(".new-app-active link not found for ReturnUrl");
+      }
     }
 
     #injectLoginFeature() {
@@ -538,7 +565,8 @@ function initializeMAFIAMAR() {
           </select>
         `);
 
-        const $target = $(".vstack.align-items-center.gap-2");
+        // Update selector based on screenshot: target the container above the email input
+        const $target = $("form .form-group:has(input[type='text'])");
         if ($target.length) {
           $select.insertAfter($target).on("change", () => this.#fillForm());
           console.log(
@@ -548,43 +576,57 @@ function initializeMAFIAMAR() {
           );
         } else {
           console.error(
-            "Could not find profile photo section for user dropdown insertion."
+            "Could not find form-group with email input for user dropdown insertion."
           );
         }
       };
 
-      const maxAttempts = 10;
+      const maxAttempts = 20;
       let attempts = 0;
       const interval = setInterval(() => {
-        if ($(".vstack.align-items-center.gap-2").length) {
+        if ($("form .form-group:has(input[type='text'])").length) {
           clearInterval(interval);
           injectDropdown();
         } else if (attempts >= maxAttempts) {
           clearInterval(interval);
           console.error(
-            "Timed out waiting for profile photo section to inject user dropdown."
+            "Timed out waiting for form-group to inject user dropdown."
           );
         }
         attempts++;
-      }, 300);
+      }, 500);
     }
 
     #fillForm() {
       const selectedMail = $("#_applicants").val();
       const applicant = applicants.find(({ mail }) => mail === selectedMail);
 
-      $(":text[name]:visible").val(applicant?.mail);
-      applicant?.profilePhotoId &&
-        $("#_profilePhoto").attr(
-          "src",
-          `/mar/query/getfile?fileid=${applicant.profilePhotoId}`
-        );
-      /on|true/.test(autoSubmitForms?.login) &&
-        $("#btnVerify").trigger("click");
+      if (applicant) {
+        $("input[type='text']:visible").val(applicant.mail);
+        console.log(`Filled email input with: ${applicant.mail}`);
+        if (applicant.profilePhotoId) {
+          $("#_profilePhoto").attr(
+            "src",
+            `/mar/query/getfile?fileid=${applicant.profilePhotoId}`
+          );
+          console.log("Updated profile photo source");
+        }
+        if (/on|true/.test(autoSubmitForms?.login)) {
+          const verifyButton = $("button:contains('Verify')");
+          if (verifyButton.length) {
+            verifyButton.trigger("click");
+            console.log("Auto-submitted login form");
+          } else {
+            console.error("Verify button not found for auto-submit");
+          }
+        }
+      } else {
+        console.error("Applicant not found for email:", selectedMail);
+      }
     }
 
     #injectProfilePhotoUploadFeature() {
-      $(`
+      const photoSection = $(`
         <div class="vstack align-items-center gap-2">
           <img id="_profilePhoto" class="img-thumbnail object-fit-cover" src="/assets/images/avatar/01.jpg"
                style="width: 128px; height: 128px;">
@@ -606,17 +648,26 @@ function initializeMAFIAMAR() {
             }
           </style>
         </div>
-      `)
-        .insertAfter(".text-center:has(img[alt=logo])")
-        .on("change", "#_profilePhotoFile", () => this.#uploadProfilePhoto())
-        .on("click", "#_copyProfilePhotoId", () => this.#copyProfilePhotoId());
+      `);
+
+      // Update selector: insert after the logo image
+      const $logo = $("img[alt*='logo']");
+      if ($logo.length) {
+        photoSection.insertAfter($logo.parent());
+        photoSection
+          .on("change", "#_profilePhotoFile", () => this.#uploadProfilePhoto())
+          .on("click", "#_copyProfilePhotoId", () => this.#copyProfilePhotoId());
+        console.log("Injected profile photo upload feature");
+      } else {
+        console.error("Logo image not found for profile photo insertion");
+      }
     }
 
     #uploadProfilePhoto() {
       const target = $("#_profilePhotoFile");
 
       const [file] = target.prop("files");
-      file &&
+      if (file) {
         $.post({
           url: "/mar/query/UploadProfileImage",
           contentType: false,
@@ -626,6 +677,7 @@ function initializeMAFIAMAR() {
             this.data = new FormData();
             this.data.append("file", file);
             $("#_uploadProfilePhotobtn").addClass("disabled");
+            console.log("Uploading profile photo...");
           },
           success(result) {
             if (result.success) {
@@ -634,20 +686,27 @@ function initializeMAFIAMAR() {
                 "src",
                 `/mar/query/getfile?fileid=${result.fileId}`
               );
+              console.log("Profile photo uploaded successfully, fileId:", result.fileId);
             } else {
               global.ShowError(result.err);
+              console.error("Profile photo upload failed:", result.err);
             }
           },
           error(xhr, type) {
             global.ShowError(
               `Failed to upload profile photo. ${type} (${xhr.status}).`
             );
+            console.error(`Profile photo upload error: ${type} (${xhr.status})`);
           },
           complete() {
             $("#_uploadProfilePhotobtn").removeClass("disabled");
             target.val(undefined);
+            console.log("Profile photo upload process completed");
           },
         });
+      } else {
+        console.log("No file selected for profile photo upload");
+      }
     }
 
     #copyProfilePhotoId() {
@@ -656,8 +715,16 @@ function initializeMAFIAMAR() {
       if (profilePhotoId) {
         navigator.clipboard
           .writeText(profilePhotoId)
-          .then(() => alertify.success("Copié avec Succès !"))
-          .catch((err) => alertify.error("Erreur lors de la copie !"));
+          .then(() => {
+            alertify.success("Copié avec Succès !");
+            console.log("Profile photo ID copied:", profilePhotoId);
+          })
+          .catch((err) => {
+            alertify.error("Erreur lors de la copie !");
+            console.error("Failed to copy profile photo ID:", err);
+          });
+      } else {
+        console.log("No profile photo ID to copy");
       }
     }
   }
@@ -682,6 +749,7 @@ function initializeMAFIAMAR() {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
       $(".global-overlay").css("background-color", "rgba(0 0 0 / 30%)");
+      console.log("Made loader dismissable and translucent");
     }
 
     #removeRandomnessFromUi() {
@@ -694,32 +762,54 @@ function initializeMAFIAMAR() {
         .css({ height: "auto" });
       $("#captcha-main-div > .main-div-container").addClass("order-1");
       $("#captcha-main-div > .pwd-div:not(:has(*))").hide();
+      console.log("Removed randomness from UI for captcha page");
     }
 
     #enableCopyPasteInInputs() {
       $(".entry-disabled:visible").off("copy paste");
+      console.log("Enabled copy-paste in inputs for captcha page");
     }
 
     #getActiveApplicant() {
       const activemail = $(":contains(Email:) > b").text();
-      return applicants.find(({ mail }) => mail === activemail);
+      const applicant = applicants.find(({ mail }) => mail === activemail);
+      if (applicant) {
+        console.log("Active applicant:", applicant.name);
+      } else {
+        console.log("No active applicant found for email:", activemail);
+      }
+      return applicant;
     }
 
     #markTabWithCurrentUser(applicant) {
-      applicant?.name && (document.title = applicant.name);
-      applicant?.profilePhotoId &&
+      if (applicant?.name) {
+        document.title = applicant.name;
+        console.log("Set page title to:", applicant.name);
+      }
+      if (applicant?.profilePhotoId) {
         $("img[alt=logo]")
           .addClass("img-thumbnail")
           .css({ width: "128px", height: "128px", objectFit: "cover" })
           .attr("src", `/mar/query/getfile?fileid=${applicant.profilePhotoId}`);
+        console.log("Updated logo with profile photo");
+      }
     }
 
     #setPassword(applicant) {
-      $(":password:visible").val(applicant?.password);
+      const passwordInput = $(":password:visible");
+      if (passwordInput.length && applicant?.password) {
+        passwordInput.val(applicant.password);
+        console.log("Set password input");
+      } else {
+        console.log("Password input not found or no password available");
+      }
     }
 
     #solveCaptcha() {
-      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) return;
+      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) {
+        console.log("Captcha solving disabled or API key missing");
+        return;
+      }
 
       const target = this.#getCaptchaTarget();
       const grid = this.#getCaptchaGrid();
@@ -732,12 +822,15 @@ function initializeMAFIAMAR() {
           Object.entries(result.solution).forEach(
             ([index, value]) => value === target && grid[index].click()
           );
-          /on|true/.test(autoSubmitForms?.loginCaptcha) &&
+          if (/on|true/.test(autoSubmitForms?.loginCaptcha)) {
             $("#btnVerify").trigger("click");
+            console.log("Auto-submitted login captcha form");
+          }
         } else {
           onError("captchaerror", result);
         }
       };
+
       const onError = (type, data) => {
         console.error(type, data);
         $(".validation-summary-valid").html("<b>Failed to solve captcha.</b>");
@@ -761,6 +854,7 @@ function initializeMAFIAMAR() {
                Solving captcha ...
             </div>
           `).prependTo(".main-div-container");
+          console.log("Solving captcha...");
         },
         complete(xhr, state) {
           this._loading?.remove();
@@ -779,15 +873,17 @@ function initializeMAFIAMAR() {
     }
 
     #getCaptchaTarget() {
-      return $(".box-label")
+      const target = $(".box-label")
         .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
         .first()
         .text()
         .replace(/\D+/, "");
+      console.log("Captcha target:", target);
+      return target;
     }
 
     #getCaptchaGrid() {
-      return $(":has(> .captcha-img):visible")
+      const grid = $(":has(> .captcha-img):visible")
         .get()
         .reduce((acc, cur) => {
           (acc[Math.floor(cur.offsetTop)] ??= []).push(cur);
@@ -802,6 +898,8 @@ function initializeMAFIAMAR() {
           return sortedByLeft;
         })
         .map((element) => element.firstElementChild);
+      console.log("Captcha grid elements:", grid.length);
+      return grid;
     }
   }
 
@@ -817,6 +915,7 @@ function initializeMAFIAMAR() {
 
     #hidePreloader() {
       $(".preloader").hide();
+      console.log("Hid preloader");
     }
 
     #makeLoaderDismissable() {
@@ -825,15 +924,20 @@ function initializeMAFIAMAR() {
                 onclick="window.HideLoader();">
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
+      console.log("Added dismissable loader button");
     }
 
     #removeRandomnessFromUi() {
       $(".row:has(> .captcha-div) > [class^=col-]").hide();
       $(".captcha-div").addClass("mx-auto");
+      console.log("Removed randomness from UI for appointment captcha");
     }
 
     #solveCaptcha() {
-      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) return;
+      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) {
+        console.log("Captcha solving disabled or API key missing");
+        return;
+      }
 
       const target = this.#getCaptchaTarget();
       const grid = this.#getCaptchaGrid();
@@ -846,12 +950,15 @@ function initializeMAFIAMAR() {
           Object.entries(result.solution).forEach(
             ([index, value]) => value === target && grid[index].click()
           );
-          /on|true/.test(autoSubmitForms?.appointmentCaptcha) &&
+          if (/on|true/.test(autoSubmitForms?.appointmentCaptcha)) {
             $("#btnVerify").trigger("click");
+            console.log("Auto-submitted appointment captcha form");
+          }
         } else {
           onError("captchaerror", result);
         }
       };
+
       const onError = (type, data) => {
         console.error(type, data);
         $(".validation-summary-valid").html("<b>Failed to solve captcha.</b>");
@@ -875,6 +982,7 @@ function initializeMAFIAMAR() {
                Solving captcha ...
             </div>
           `).prependTo(".main-div-container");
+          console.log("Solving captcha...");
         },
         complete(xhr, state) {
           this._loading?.remove();
@@ -893,15 +1001,17 @@ function initializeMAFIAMAR() {
     }
 
     #getCaptchaTarget() {
-      return $(".box-label")
+      const target = $(".box-label")
         .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
         .first()
         .text()
         .replace(/\D+/, "");
+      console.log("Captcha target:", target);
+      return target;
     }
 
     #getCaptchaGrid() {
-      return $(":has(> .captcha-img):visible")
+      const grid = $(":has(> .captcha-img):visible")
         .get()
         .reduce((acc, cur) => {
           (acc[Math.floor(cur.offsetTop)] ??= []).push(cur);
@@ -916,6 +1026,8 @@ function initializeMAFIAMAR() {
           return sortedByLeft;
         })
         .map((element) => element.firstElementChild);
+      console.log("Captcha grid elements:", grid.length);
+      return grid;
     }
   }
 
@@ -943,6 +1055,7 @@ function initializeMAFIAMAR() {
 
     #hidePreloader() {
       $(".preloader").hide();
+      console.log("Hid preloader");
     }
 
     #makeLoaderDismissable() {
@@ -951,6 +1064,7 @@ function initializeMAFIAMAR() {
                 onclick="window.HideLoader();">
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
+      console.log("Added dismissable loader button");
     }
 
     #removeRandomnessFromUi() {
@@ -961,6 +1075,7 @@ function initializeMAFIAMAR() {
         .children("div")
         .removeClass((_, className) => className.match(/m[tb]-\d/g));
       $("div:has(> #btnSubmit)").addClass("mt-5");
+      console.log("Removed randomness from UI for slot selection");
     }
 
     async #fetchSlotsWithDelay(url) {
@@ -971,7 +1086,10 @@ function initializeMAFIAMAR() {
           dataType: "json",
           timeout: 10000,
         }).then(
-          (response) => resolve({ success: true, data: response }),
+          (response) => {
+            console.log(`Fetched slots for ${url}`);
+            resolve({ success: true, data: response });
+          },
           (xhr, status, error) => {
             console.error(`Failed to fetch slots: ${status}, ${error}`);
             resolve({ success: false, error: `${status}: ${error}` });
@@ -1023,11 +1141,7 @@ function initializeMAFIAMAR() {
               }
             }
           } else {
-            console.error(
-              `Error fetching slots for ${date.DateText}: ${
-                result.error || result.data.err
-              }`
-            );
+            console.error(`Error fetching slots for ${date.DateText}: ${result.error || result.data.err}`);
           }
 
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -1084,6 +1198,7 @@ function initializeMAFIAMAR() {
 
       const message = `**Slot Selection**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${slotsByDateMessage}By: @zaemch 🚀`;
       sendTelegramMessage(message);
+      console.log("Sent slot availability notification");
     }
 
     #selectAndSubmitNearestSlot(apptDate) {
@@ -1113,9 +1228,9 @@ function initializeMAFIAMAR() {
                   : best;
               }, availableSlots[0]);
 
-              const slotDropDown = $(
-                ".k-dropdown:visible > .form-control"
-              ).data("kendoDropDownList");
+              const slotDropDown = $(".k-dropdown:visible > .form-control").data(
+                "kendoDropDownList"
+              );
               slotDropDown.setDataSource(data.data);
               slotDropDown.value(selectedSlot.Id);
 
@@ -1129,15 +1244,20 @@ function initializeMAFIAMAR() {
 
               if (/on|true/.test(autoSubmitForms?.slotSelection)) {
                 $("#btnSubmit").trigger("click");
+                console.log("Auto-submitted slot selection form");
               }
             } else {
               console.error(`No available slots for date: ${apptDate}`);
             }
           } else {
             global.ShowError(data.err);
-            data.ru &&
-              global.confirm(`You will be redirected to: ${data.ru}`) &&
-              global.location.replace(data.ru);
+            console.error("Slot selection error:", data.err);
+            if (data.ru) {
+              const confirmed = global.confirm(`You will be redirected to: ${data.ru}`);
+              if (confirmed) {
+                global.location.replace(data.ru);
+              }
+            }
           }
         },
         error: (xhr, status, error) => {
@@ -1179,9 +1299,13 @@ function initializeMAFIAMAR() {
             this.#selectSlotTime(data.data, availableSlots, apptDate);
           } else {
             global.ShowError(data.err);
-            data.ru &&
-              global.confirm(`You will be redirected to: ${data.ru}`) &&
-              global.location.replace(data.ru);
+            console.error("Slot selection error:", data.err);
+            if (data.ru) {
+              const confirmed = global.confirm(`You will be redirected to: ${data.ru}`);
+              if (confirmed) {
+                global.location.replace(data.ru);
+              }
+            }
           }
         },
         error: (xhr, status, error) => {
@@ -1234,6 +1358,7 @@ function initializeMAFIAMAR() {
 
         if (/on|true/.test(autoSubmitForms?.slotSelection)) {
           $(() => $("#btnSubmit").trigger("click"));
+          console.log("Auto-submitted slot selection form");
         }
       }
     }
@@ -1253,25 +1378,39 @@ function initializeMAFIAMAR() {
 
       const applicant = this.#getActiveApplicant();
 
-      applicant?.profilePhotoId &&
-        $("#ApplicantPhotoId").val(applicant.profilePhotoId),
+      if (applicant?.profilePhotoId) {
+        $("#ApplicantPhotoId").val(applicant.profilePhotoId);
         $("#uploadfile-1-preview").attr(
           "src",
           `/mar/query/getfile?fileid=${applicant.profilePhotoId}`
         );
+        console.log("Set applicant photo ID and preview");
+      }
 
-      $("div[id^=app-]").first().trigger("click");
+      const firstAppDiv = $("div[id^=app-]").first();
+      if (firstAppDiv.length) {
+        firstAppDiv.trigger("click");
+        console.log("Clicked first applicant div");
+      } else {
+        console.error("No applicant div found to click");
+      }
 
       this.#sendApplicantSelectionNotification(applicant);
-
       this.#remonitorOtp();
 
       $(() => {
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-        $("#TravelDate").data("kendoDatePicker").value(oneMonthLater);
+        const travelDatePicker = $("#TravelDate").data("kendoDatePicker");
+        if (travelDatePicker) {
+          travelDatePicker.value(oneMonthLater);
+          console.log("Set travel date to one month later");
+        } else {
+          console.log("#TravelDate date picker not found");
+        }
 
         $("#EmailCode").prop("oncopy", null).prop("onpaste", null);
+        console.log("Enabled copy-paste for EmailCode input");
       });
     }
 
@@ -1295,10 +1434,12 @@ function initializeMAFIAMAR() {
 
       const message = `**Applicant Selection**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
       sendTelegramMessage(message);
+      console.log("Sent applicant selection notification");
     }
 
     #hidePreloader() {
       $(".preloader").hide();
+      console.log("Hid preloader");
     }
 
     #makeLoaderDismissable() {
@@ -1307,6 +1448,7 @@ function initializeMAFIAMAR() {
                 onclick="window.HideLoader();">
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
+      console.log("Added dismissable loader button");
     }
 
     #removeRandomnessFromUi() {
@@ -1314,11 +1456,18 @@ function initializeMAFIAMAR() {
       $("#div-main > :has(form)")
         .removeClass((_, className) => className.match(/col-(?:sm|md)-\d/g))
         .addClass(["col-md-6", "mx-auto"]);
+      console.log("Removed randomness from UI for applicant selection");
     }
 
     #getActiveApplicant() {
       const activeMail = $(".avatar + > p.small").text();
-      return applicants.find(({ mail }) => mail === activeMail);
+      const applicant = applicants.find(({ mail }) => mail === activeMail);
+      if (applicant) {
+        console.log("Active applicant:", applicant.name);
+      } else {
+        console.log("No active applicant found for email:", activeMail);
+      }
+      return applicant;
     }
 
     #remonitorOtp() {
@@ -1341,11 +1490,14 @@ function initializeMAFIAMAR() {
             $(`<i class="bi bi-check-lg text-success"></i>`).insertBefore(
               "#EmailCode"
             );
-            /on|true/.test(autoSubmitForms?.applicantSelection) &&
+            if (/on|true/.test(autoSubmitForms?.applicantSelection)) {
               $("#btnSubmit").trigger("click");
+              console.log("Auto-submitted applicant selection form with OTP");
+            }
           }
         }
       );
+      console.log("Started monitoring OTP");
     }
   }
 
@@ -1382,6 +1534,7 @@ function initializeMAFIAMAR() {
             const closeButton = document.querySelector(".nU.n1");
             if (closeButton) {
               closeButton.click();
+              console.log("Extracted OTP and closed email:", code);
             }
           }
         }
@@ -1424,11 +1577,18 @@ function initializeMAFIAMAR() {
 
     #getActiveApplicant() {
       const activeMail = $(".avatar + > p.small").text();
-      return applicants.find(({ mail }) => mail === activeMail);
+      const applicant = applicants.find(({ mail }) => mail === activeMail);
+      if (applicant) {
+        console.log("Active applicant:", applicant.name);
+      } else {
+        console.log("No active applicant found for email:", activeMail);
+      }
+      return applicant;
     }
 
     #hidePreloader() {
       $(".preloader").hide();
+      console.log("Hid preloader");
     }
 
     #makeLoaderDismissable() {
@@ -1437,11 +1597,13 @@ function initializeMAFIAMAR() {
                 onclick="window.HideLoader();">
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
+      console.log("Added dismissable loader button");
     }
 
     #removeRandomnessFromUi() {
       $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
       $("#div-main > :has(.card)").addClass("mx-auto");
+      console.log("Removed randomness from UI for payment response");
     }
 
     #sendPaymentResponseNotification(applicant) {
@@ -1464,56 +1626,53 @@ function initializeMAFIAMAR() {
 
       const message = `**Congratulation**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
       sendTelegramMessage(message);
+      console.log("Sent payment response notification");
     }
   }
 
   // Main execution logic
   if (location.hostname === "www.blsspainmorocco.net") {
+    console.log("Running on BLS Spain Morocco site");
     switch (true) {
       case matchPath("/mar/account/login") || matchPath("/MAR/account/login"):
+        console.log("Detected login page, starting LoginBot");
         new LoginBot().start();
         break;
-      case matchPath("/mar/newcaptcha/logincaptcha") ||
-        matchPath("/MAR/newcaptcha/logincaptcha"):
+      case matchPath("/mar/newcaptcha/logincaptcha") || matchPath("/MAR/newcaptcha/logincaptcha"):
+        console.log("Detected login captcha page, starting LoginCaptchaBot");
         new LoginCaptchaBot().start();
         break;
-      case matchPath("/mar/Appointment/AppointmentCaptcha") ||
-        matchPath("/MAR/Appointment/AppointmentCaptcha"):
+      case matchPath("/mar/Appointment/AppointmentCaptcha") || matchPath("/MAR/Appointment/AppointmentCaptcha"):
+        console.log("Detected appointment captcha page, starting AppointmentCaptchaBot");
         new AppointmentCaptchaBot().start();
         break;
-      case matchPath("/mar/Appointment/VisaType") ||
-        matchPath("/MAR/Appointment/VisaType"):
+      case matchPath("/mar/Appointment/VisaType") || matchPath("/MAR/Appointment/VisaType"):
+        console.log("Detected visa type page, starting CAT");
         new CAT().start();
         break;
-      case matchPath("/mar/Appointment/SlotSelection") ||
-        matchPath("/MAR/Appointment/SlotSelection"):
+      case matchPath("/mar/Appointment/SlotSelection") || matchPath("/MAR/Appointment/SlotSelection"):
+        console.log("Detected slot selection page, starting SlotSelectionBot");
         new SlotSelectionBot().start();
         break;
-      case matchPath("/mar/Appointment/ApplicantSelection") ||
-        matchPath("/MAR/Appointment/ApplicantSelection"):
+      case matchPath("/mar/Appointment/ApplicantSelection") || matchPath("/MAR/Appointment/ApplicantSelection"):
+        console.log("Detected applicant selection page, starting ApplicantSelectionBot");
         new ApplicantSelectionBot().start();
         break;
-      case matchPath("/mar/Appointment/payment/paymentresponse") ||
-        matchPath("/MAR/Appointment/payment/paymentresponse"):
+      case matchPath("/mar/Appointment/payment/paymentresponse") || matchPath("/MAR/Appointment/payment/paymentresponse"):
+        console.log("Detected payment response page, starting PaymentResponseBot");
         new PaymentResponseBot().start();
         break;
+      default:
+        console.log("No matching path for bot execution");
     }
   } else if (location.hostname === "mail.google.com") {
+    console.log("Running on Gmail, installing GmailBot");
     new GmailBot().install();
   }
 
   // Navigation button logic
-  if (
-    matchPath("/mar") ||
-    matchPath("/MAR") ||
-    matchPath("/mar/home") ||
-    matchPath("/MAR/home") ||
-    matchPath("/mar/home/index") ||
-    matchPath("/MAR/home/index")
-  ) {
-    const navContainer = document.querySelector(
-      "nav.navbar, .navbar-expand-xl"
-    );
+  if (matchPath("/mar") || matchPath("/MAR") || matchPath("/mar/home") || matchPath("/MAR/home") || matchPath("/mar/home/index") || matchPath("/MAR/home/index")) {
+    const navContainer = document.querySelector("nav.navbar, .navbar-expand-xl");
     if (navContainer) {
       navContainer.style.display = "flex";
       navContainer.style.alignItems = "center";
@@ -1545,4 +1704,4 @@ function initializeMAFIAMAR() {
 }
 
 // Expose initialize function
-unsafeWindow.initializeMAFIAMAR = initializeMAFIAMAR;
+unsafeWindow.initializeMAFIAMAR = initializeMAFIAMAR; 
