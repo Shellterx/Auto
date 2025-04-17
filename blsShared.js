@@ -25,7 +25,7 @@
       "Service Unavailable','403 ERROR",
       "502 Bad Gateway",
       "We're sorry, something went wrong",
-      "We are expreiencing an error while processing your request. Kindly try after sometime.",
+      "We are experiencing an error while processing your request. Kindly try after sometime.",
     ];
 
     const pageTitle = document.title;
@@ -57,7 +57,8 @@
   // Classes
   class CAT {
     start() {
-      console.log(`${this.constructor.name} started`);
+      console.log(`${this.constructor.name} started on URL:`, location.href);
+      reloadPageIfError();
 
       $("#visaTypeMessage, #PremiumTypeModel, #VisaTypeModel").remove();
 
@@ -68,14 +69,14 @@
           const label = $(this).closest(".form-group").find("label").text().trim();
           const dropdownlistId = $(this).attr("id");
           if (label.match(/Category|Catégorie/i)) categoryId = dropdownlistId;
-          if (label.match(/Location|Lieu/i)) locationId = dropdownlistId;
+          if (label.match(/Location|Lieu|Centre/i)) locationId = dropdownlistId;
           if (label.match(/Visa Type|Type de visa/i)) visaTypeId = dropdownlistId;
           if (label.match(/Visa Sub Type|Sous-type de visa/i)) visaSubTypeId = dropdownlistId;
         });
 
         $('input[type="radio"]').each(function () {
           if ($(this).is(":visible")) {
-            if ($(this).attr("id").includes("family")) familyId = $(this).attr("id");
+            if ($(this).attr("id").match(/family/i)) familyId = $(this).attr("id");
             else selfId = $(this).attr("id");
           }
         });
@@ -95,6 +96,7 @@
           typeof categoryData !== "undefined" &&
           (window.applicants[0].membersName === "I" || typeof applicantsNoData !== "undefined");
 
+        console.log("CAT waitForElements:", { isReady, categoryId, locationId, visaTypeId, visaSubTypeId, familyId, selfId, familyMemberId });
         return { isReady, categoryId, locationId, visaTypeId, visaSubTypeId, familyId, selfId, familyMemberId };
       };
 
@@ -182,7 +184,8 @@
 
   class LoginBot {
     start() {
-      console.log(`${this.constructor.name} started`);
+      console.log(`${this.constructor.name} started on URL:`, location.href);
+      reloadPageIfError();
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
@@ -232,7 +235,7 @@
           </select>
         `);
 
-        const $target = $(".vstack.align-items-center.gap-2, .text-center:has(img[alt=logo])");
+        const $target = $(".vstack.align-items-center.gap-2, .text-center:has(img[alt=logo]), .container:has(form)");
         if ($target.length) {
           $select.insertAfter($target).on("change", () => this.#fillForm());
           console.log("User dropdown injected with", window.applicants.length, "users");
@@ -244,7 +247,7 @@
       const maxAttempts = 10;
       let attempts = 0;
       const interval = setInterval(() => {
-        if ($(".vstack.align-items-center.gap-2, .text-center:has(img[alt=logo])").length) {
+        if ($(".vstack.align-items-center.gap-2, .text-center:has(img[alt=logo]), .container:has(form)").length) {
           clearInterval(interval);
           injectDropdown();
         } else if (attempts >= maxAttempts) {
@@ -252,6 +255,7 @@
           console.error("Timed out waiting for dropdown target");
         }
         attempts++;
+        console.log(`LoginBot dropdown attempt ${attempts}`);
       }, 300);
     }
 
@@ -259,15 +263,24 @@
       const selectedMail = $("#_applicants").val();
       const applicant = window.applicants.find(({ mail }) => mail === selectedMail);
 
-      $(":text[name]:visible").val(applicant?.mail);
-      console.log("Filled email:", applicant?.mail);
-      /on|true/.test(window.autoSubmitForms?.login) && $("#btnVerify").trigger("click");
+      const emailField = $(":text[name]:visible, #Email, input[name='Email'], input[name='email']");
+      if (emailField.length && applicant?.mail) {
+        emailField.val(applicant.mail);
+        console.log("Filled email:", applicant.mail);
+        if (/on|true/.test(window.autoSubmitForms?.login)) {
+          console.log("Auto-submitting login form");
+          $("#btnVerify, button[type='submit']").first().trigger("click");
+        }
+      } else {
+        console.error("Failed to fill email: Field not found or no email");
+      }
     }
   }
 
   class LoginCaptchaBot {
     start() {
-      console.log(`${this.constructor.name} started`);
+      console.log(`${this.constructor.name} started on URL:`, location.href);
+      reloadPageIfError();
       this.#makeLoaderDismissableAndTranslucent();
       this.#removeRandomnessFromUi();
       this.#enableCopyPasteInInputs();
@@ -299,8 +312,8 @@
     }
 
     #getActiveApplicant() {
-      const activemail = $(":contains(Email:), :contains(E-mail:), :contains(Courriel:)")
-        .find("b")
+      const activemail = $(":contains(Email:), :contains(E-mail:), :contains(Courriel:), :contains(email:)")
+        .find("b, strong, span")
         .text()
         .trim();
       const applicant = window.applicants.find(({ mail }) => mail === activemail);
@@ -317,7 +330,7 @@
       const maxAttempts = 15;
       let attempts = 0;
       const trySetPassword = () => {
-        const passwordField = $(":password:visible, input[type='password']:visible, #Password");
+        const passwordField = $(":password:visible, input[type='password']:visible, #Password, input[name='Password'], input[name='password']");
         if (passwordField.length && applicant?.password) {
           passwordField.val(applicant.password);
           console.log("Password set for", applicant.mail);
@@ -347,7 +360,10 @@
         if (result.status === "solved") {
           Object.entries(result.solution).forEach(([index, value]) => value === target && grid[index].click());
           console.log("Captcha solved, submitting...");
-          /on|true/.test(window.autoSubmitForms?.loginCaptcha) && $("#btnVerify").trigger("click");
+          if (/on|true/.test(window.autoSubmitForms?.loginCaptcha)) {
+            console.log("Auto-submitting captcha form");
+            $("#btnVerify, button[type='submit']").first().trigger("click");
+          }
         } else {
           console.error("Captcha error:", result);
           $(".validation-summary-valid").html("<b>Failed to solve captcha.</b>");
@@ -374,7 +390,7 @@
     }
 
     #getCaptchaTarget() {
-      const target = $(".box-label")
+      const target = $(".box-label, .captcha-label")
         .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
         .first()
         .text()
@@ -384,7 +400,7 @@
     }
 
     #getCaptchaGrid() {
-      const grid = $(":has(> .captcha-img):visible")
+      const grid = $(":has(> .captcha-img):visible, .captcha-grid:visible")
         .get()
         .reduce((acc, cur) => {
           (acc[Math.floor(cur.offsetTop)] ??= []).push(cur);
@@ -408,7 +424,7 @@
   window.CAT = CAT;
   window.handleModalsAndRedirects = function () {
     console.log("Handling modals and redirects");
-    setTimeout(() => $(".modal").modal("hide"), 500);
+    setTimeout(() => $(".modal, .modal-backdrop").remove(), 500);
   };
 
   // Initialize Alertify
