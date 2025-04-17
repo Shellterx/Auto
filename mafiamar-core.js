@@ -1,131 +1,36 @@
-//############## Visa Configurations ########################################
-const visaConfigs = {
-    T1: {
-      locationName: "Tetouan",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Schengen Visa",
-    },
-    A1: {
-      locationName: "Agadir",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Schengen Visa",
-    },
-    A2: {
-      locationName: "Agadir",
-      visaTypeName: "National Visa",
-      visaSubName: "Non-university students",
-    },
-    R1: {
-      locationName: "Rabat",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Schengen Visa",
-    },
-    R2: {
-      locationName: "Rabat",
-      visaTypeName: "National Visa",
-      visaSubName: "Students - Language/selectivity",
-    },
-    R3: {
-      locationName: "Rabat",
-      visaTypeName: "National Visa",
-      visaSubName: "Students - Non-tertiary studies",
-    },
-    R4: {
-      locationName: "Rabat",
-      visaTypeName: "National Visa",
-      visaSubName: "Students - Graduate studies",
-    },
-    R5: {
-      locationName: "Rabat",
-      visaTypeName: "National Visa",
-      visaSubName: "Student - Others",
-    },
-    TG1: {
-      locationName: "Tangier",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Schengen Visa",
-    },
-    TG2: {
-      locationName: "Tangier",
-      visaTypeName: "National Visa",
-      visaSubName: "Students Less than 6 Months (SSU).",
-    },
-    C1: {
-      locationName: "Casablanca",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Casa 1",
-    },
-    C2: {
-      locationName: "Casablanca",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Casa 2",
-    },
-    C3: {
-      locationName: "Casablanca",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Casa 3",
-    },
-    C4: {
-      locationName: "Casablanca",
-      visaTypeName: "National Visa",
-      visaSubName: "Student Visa",
-    },
-    C5: {
-      locationName: "Casablanca",
-      visaTypeName: "National Visa",
-      visaSubName: "Family Reunification Visa",
-    },
-    C6: {
-      locationName: "Casablanca",
-      visaTypeName: "National Visa",
-      visaSubName: "National Visa",
-    },
-    C7: {
-      locationName: "Casablanca",
-      visaTypeName: "National Visa",
-      visaSubName: "Work Visa",
-    },
-    N1: {
-      locationName: "Nador",
-      visaTypeName: "Schengen Visa",
-      visaSubName: "Schengen Visa",
-    },
-    N2: {
-      locationName: "Nador",
-      visaTypeName: "National Visa",
-      visaSubName: "Student Visa",
-    },
-    N3: {
-      locationName: "Nador",
-      visaTypeName: "National Visa",
-      visaSubName: "Family Reunification Visa",
-    },
-    N4: {
-      locationName: "Nador",
-      visaTypeName: "National Visa",
-      visaSubName: "National Visa",
-    },
-    N5: {
-      locationName: "Nador",
-      visaTypeName: "National Visa",
-      visaSubName: "Work Visa",
-    },
-  };
-  
-  // Expose visaConfigs to global scope
-  window.visaConfigs = visaConfigs;
-  
-  // The rest of your original script's logic (excluding the metadata and configurations)
-  var locationName = visaConfigs[window.applicants[0].config].locationName;
-  var visaTypeName = visaConfigs[window.applicants[0].config].visaTypeName;
-  var visaSubName = visaConfigs[window.applicants[0].config].visaSubName;
-  var membersName = window.applicants[0].membersName;
-  
+"use strict";
+
+// Ensure dependencies are available
+if (!window.jQuery || !window.alertify || !window.axios) {
+  console.error("Required dependencies (jQuery, alertify, axios) are not loaded.");
+  return;
+}
+
+// Initialize MAFIAMAR
+function initializeMAFIAMAR() {
+  console.log("Initializing MAFIAMAR core...");
+
+  // Access global variables
+  const applicants = unsafeWindow.applicants;
+  const visaConfigs = unsafeWindow.visaConfigs;
+  const captcha = unsafeWindow.captcha;
+  const autoSubmitForms = unsafeWindow.autoSubmitForms;
+
+  if (!applicants || !visaConfigs || !captcha || !autoSubmitForms) {
+    console.error("Required global variables (applicants, visaConfigs, captcha, autoSubmitForms) are not defined.");
+    return;
+  }
+
+  // Expose sendTelegramMessage to global scope
+  unsafeWindow.sendTelegramMessage = sendTelegramMessage;
+
+  // Core variables
+  var locationName = visaConfigs[applicants[0].config].locationName;
+  var visaTypeName = visaConfigs[applicants[0].config].visaTypeName;
+  var visaSubName = visaConfigs[applicants[0].config].visaSubName;
+  var membersName = applicants[0].membersName;
   var categoryName = localStorage.getItem("categoryName") || "Normal";
-  
-  // ... (Include all other code from your original script, such as the category change logic, bot classes, and other functions)
-  // For brevity, I'll summarize the inclusion rather than repeating the entire code.
-  
+
   // Category change logic
   if (
     window.location.href.startsWith(
@@ -139,17 +44,17 @@ const visaConfigs = {
       localStorage.setItem("categoryName", newCategory);
       window.location.href = "/mar/appointment/newappointment";
     }
-  
+
     const categories = [
       { name: "Normal", className: "btn btn-success" },
       { name: "Premium", className: "btn btn-danger" },
       { name: "Prime Time", className: "btn btn-info" },
     ];
-  
+
     const buttonContainer = document.createElement("div");
     buttonContainer.style.textAlign = "center";
     buttonContainer.style.margin = "20px auto";
-  
+
     categories.forEach((category) => {
       const button = document.createElement("button");
       button.textContent = `Change To : ${category.name}`;
@@ -158,7 +63,7 @@ const visaConfigs = {
       button.onclick = () => changeCategory(category.name);
       buttonContainer.appendChild(button);
     });
-  
+
     const targetDiv = document.querySelector("#div-main");
     if (targetDiv) {
       targetDiv.parentNode.insertBefore(buttonContainer, targetDiv);
@@ -170,37 +75,37 @@ const visaConfigs = {
         link.textContent.trim() === "Try Again" &&
         link.getAttribute("href") === "/mar/appointment/newappointment"
     );
-  
+
     if (tryAgainLink) {
       let countdown = 10;
       let isPaused = false;
-  
+
       tryAgainLink.textContent = `Keep trying in the Actual Category: ${localStorage.getItem(
         "categoryName"
       )} in : (${countdown}s)`;
       tryAgainLink.style.width = "auto";
-  
+
       const pauseButton = document.createElement("button");
       pauseButton.textContent = "Pause";
       pauseButton.style.marginLeft = "10px";
       pauseButton.className = "btn btn-secondary ms-2";
       pauseButton.innerHTML = '<i class="bi bi-pause-fill"></i>';
       tryAgainLink.parentNode.insertBefore(pauseButton, tryAgainLink.nextSibling);
-  
+
       pauseButton.addEventListener("click", () => {
         isPaused = !isPaused;
         pauseButton.innerHTML = isPaused
           ? '<i class="bi bi-play-fill"></i>'
           : '<i class="bi bi-pause-fill"></i>';
       });
-  
+
       const countdownInterval = setInterval(() => {
         if (!isPaused) {
           countdown -= 1;
           tryAgainLink.textContent = `Keep trying in the Actual Category: ${localStorage.getItem(
             "categoryName"
           )} (${countdown}s)`;
-  
+
           if (countdown <= 0) {
             clearInterval(countdownInterval);
             tryAgainLink.click();
@@ -209,12 +114,12 @@ const visaConfigs = {
       }, 1000);
     }
   }
-  
+
   // Modal handling
   setTimeout(() => {
     $(".modal").modal("hide");
   }, 500);
-  
+
   setTimeout(() => {
     const button1 = document.querySelector(
       '.btn.btn-success.btn-block[type="button"][data-bs-dismiss="modal"][onclick="onBioDisclaimerAccept();"]'
@@ -231,8 +136,8 @@ const visaConfigs = {
       }, 300);
     }
   }, 400);
-  
-  // Redirects
+
+  // Redirect logic
   if (
     window.location.href ===
     "https://www.blsspainmorocco.net/mar/account/changepassword?alert=True" ||
@@ -242,7 +147,7 @@ const visaConfigs = {
     window.location.href =
       "https://www.blsspainmorocco.net/mar/appointment/appointmentcaptcha";
   }
-  
+
   if (
     window.location.href ===
     "https://www.blsspainmorocco.net/mar/Appointment/NewAppointment?msg=lfJQVX2NULaGjPKL6fTAx8BtSHJVTsEgaj1lwdqOSsc%3D" ||
@@ -252,11 +157,11 @@ const visaConfigs = {
     window.location.href =
       "https://www.blsspainmorocco.net/mar/appointment/newappointment";
   }
-  
+
   // Utility functions
   function matchPath(pattern, pathname = location.pathname) {
     return compileMatcher(pattern).test(pathname);
-  
+
     function compileMatcher(pattern) {
       const source =
         "^" +
@@ -268,7 +173,7 @@ const visaConfigs = {
       return new RegExp(source, "i");
     }
   }
-  
+
   function shuffleArray(array) {
     let index = -1;
     const length = array.length;
@@ -279,7 +184,7 @@ const visaConfigs = {
     }
     return array;
   }
-  
+
   function reloadPageIfError() {
     const errorTitles = [
       "504 Gateway Time-out",
@@ -300,22 +205,22 @@ const visaConfigs = {
       "We're sorry, something went wrong",
       "We are expreiencing an error while processing your request. Kindly try after sometime.",
     ];
-  
+
     const pageTitle = document.title;
-  
+
     if (errorTitles.includes(pageTitle)) {
       setTimeout(function () {
         window.location.reload();
       }, 1000);
     }
   }
-  
+
   reloadPageIfError();
-  
+
   function random(lower, upper) {
     return lower + Math.floor(Math.random() * (upper - lower + 1));
   }
-  
+
   function creatBTN(text, targetSelector, onClick, color = "#007bff") {
     const button = document.createElement("button");
     button.textContent = text;
@@ -332,7 +237,7 @@ const visaConfigs = {
     button.onmouseover = () => (button.style.backgroundColor = darkenColor(color));
     button.onmouseout = () => (button.style.backgroundColor = color);
     button.onclick = onClick;
-  
+
     const target = document.querySelector(targetSelector);
     if (target) {
       target.appendChild(button);
@@ -340,7 +245,7 @@ const visaConfigs = {
       console.error(`Target selector ${targetSelector} not found.`);
     }
   }
-  
+
   function darkenColor(color) {
     const num = parseInt(color.replace("#", ""), 16),
       amt = Math.round(255 * 0.1),
@@ -359,21 +264,20 @@ const visaConfigs = {
         .slice(1)
     );
   }
-  
+
   function redirectTo(url) {
     window.location.href = url;
   }
-  
-  // Bot classes
+
+  // Classes
   class CAT {
-    #applicant;
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       $("#visaTypeMessage").remove();
       $("#PremiumTypeModel").remove();
       $("VisaTypeModel").remove();
-  
+
       const waitForElements = () => {
         let categoryId,
           locationId,
@@ -382,7 +286,7 @@ const visaConfigs = {
           familyId,
           selfId,
           familyMemberId;
-  
+
         $('input[data-role="dropdownlist"]').each(function () {
           var labelId = $(this).attr("id") + "_label";
           if ($("#" + labelId).is(":visible")) {
@@ -404,7 +308,7 @@ const visaConfigs = {
             }
           }
         });
-  
+
         $('input[type="radio"]').each(function () {
           if ($(this).is(":visible")) {
             if ($(this).attr("id").includes("family")) {
@@ -414,9 +318,9 @@ const visaConfigs = {
             }
           }
         });
-  
+
         familyMemberId = familyId ? "an" + familyId.slice(6) : null;
-  
+
         const isReady =
           categoryId &&
           locationId &&
@@ -425,11 +329,11 @@ const visaConfigs = {
           (familyId || selfId) &&
           $("#" + locationId).data("kendoDropDownList") &&
           typeof locationData !== "undefined" &&
-          typeof visaTypeFilterData !== "undefined" &&
+          typeof visaTypeFilterData !== "undefined " &&
           typeof visasubIdFilterData !== "undefined" &&
           typeof categoryData !== "undefined" &&
-          (window.membersName === "I" || typeof applicantsNoData !== "undefined");
-  
+          (membersName === "I" || typeof applicantsNoData !== "undefined");
+
         return {
           isReady,
           categoryId,
@@ -441,7 +345,7 @@ const visaConfigs = {
           familyMemberId,
         };
       };
-  
+
       const maxAttempts = 60;
       let attempts = 0;
       const interval = setInterval(() => {
@@ -456,15 +360,15 @@ const visaConfigs = {
           familyMemberId,
         } = waitForElements();
         attempts++;
-  
+
         if (isReady) {
           clearInterval(interval);
           try {
-            const applicantConfig = visaConfigs[window.applicants[0].config];
+            const applicantConfig = visaConfigs[applicants[0].config];
             locationName = applicantConfig.locationName;
             visaTypeName = applicantConfig.visaTypeName;
             visaSubName = applicantConfig.visaSubName;
-  
+
             var selectedLocation = locationData.find(
               (location) => location.Name === locationName
             );
@@ -477,7 +381,7 @@ const visaConfigs = {
             );
             dropdownlistLocation.value(selectedLocation.Id);
             dropdownlistLocation.trigger("change");
-  
+
             var selectedVisaType = visaTypeFilterData.find(
               (visaType) => visaType.Name === visaTypeName
             );
@@ -490,7 +394,7 @@ const visaConfigs = {
             );
             dropdownlistVisaType.value(selectedVisaType.Id);
             dropdownlistVisaType.trigger("change");
-  
+
             var selectedVisaSub = visasubIdFilterData.find(
               (visaSub) => visaSub.Name === visaSubName
             );
@@ -503,7 +407,7 @@ const visaConfigs = {
             );
             dropdownlistVisaSub.value(selectedVisaSub.Id);
             dropdownlistVisaSub.trigger("change");
-  
+
             var selectedCategory = categoryData.find(
               (category) => category.Name === categoryName
             );
@@ -516,18 +420,18 @@ const visaConfigs = {
             );
             dropdownlistCategory.value(selectedCategory.Id);
             dropdownlistCategory.trigger("change");
-  
-            if (window.membersName !== "I") {
+
+            if (membersName !== "I") {
               $("#familyDisclaimer").remove();
               var familyElement = $("#" + familyId);
               familyElement.click();
               OnFamilyAccept();
-  
+
               var selectedMembers = applicantsNoData.find(
-                (members) => members.Name === window.membersName
+                (members) => members.Name === membersName
               );
               if (!selectedMembers) {
-                console.error(`Members ${window.membersName} not found in applicantsNoData.`);
+                console.error(`Members ${membersName} not found in applicantsNoData.`);
                 return;
               }
               var dropdownlistMembers = $("#" + familyMemberId).data(
@@ -536,8 +440,8 @@ const visaConfigs = {
               dropdownlistMembers.value(selectedMembers.Id);
               dropdownlistMembers.trigger("change");
             }
-  
-            if (/on|true/.test(window.autoSubmitForms?.visaType)) {
+
+            if (/on|true/.test(autoSubmitForms?.visaType)) {
               var submitButton = document.querySelector("#btnSubmit");
               submitButton.click();
             } else {
@@ -557,11 +461,11 @@ const visaConfigs = {
       }, 300);
     }
   }
-  
+
   class LoginBot {
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
@@ -570,11 +474,11 @@ const visaConfigs = {
       this.#injectProfilePhotoUploadFeature();
       this.#injectLoginFeature();
     }
-  
+
     #hidePreloader() {
       $(".preloader").hide();
     }
-  
+
     #makeLoaderDismissable() {
       $(`
         <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
@@ -582,46 +486,46 @@ const visaConfigs = {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
     }
-  
+
     #removeRandomnessFromUi() {
       $("#div-main > .container > .row > [class^=col-]").hide();
       $("#div-main > .container > .row > :has(form)").addClass("mx-auto");
       $(":has(> form)").removeAttr("class");
     }
-  
+
     #enableCopyPasteInInputs() {
       $(".entry-disabled:visible").on("copy paste", (evt) =>
         evt.stopImmediatePropagation()
       );
     }
-  
+
     #setReturnUrl() {
       $("#ReturnUrl").val($(".new-app-active").attr("href"));
     }
-  
+
     #injectLoginFeature() {
-      if (!window.applicants.length) {
+      if (!applicants.length) {
         console.error("No applicants defined. Cannot create user dropdown.");
         return;
       }
-  
+
       const injectDropdown = () => {
         const $select = $(`
           <select id="_applicants" class="form-select form-select-lg mt-2" style="display: block; width: 100%; max-width: 300px; margin: 10px auto;">
             <option selected disabled>Select a User</option>
-            ${window.applicants.map(
+            ${applicants.map(
               ({ name, mail }) =>
                 `<option value="${mail}">${name || mail}</option>`
             )}
           </select>
         `);
-  
+
         const $target = $(".vstack.align-items-center.gap-2");
         if ($target.length) {
           $select.insertAfter($target).on("change", () => this.#fillForm());
           console.log(
             "User dropdown successfully injected with",
-            window.applicants.length,
+            applicants.length,
             "users."
           );
         } else {
@@ -630,7 +534,7 @@ const visaConfigs = {
           );
         }
       };
-  
+
       const maxAttempts = 10;
       let attempts = 0;
       const interval = setInterval(() => {
@@ -646,20 +550,20 @@ const visaConfigs = {
         attempts++;
       }, 300);
     }
-  
+
     #fillForm() {
       const selectedMail = $("#_applicants").val();
-      const applicant = window.applicants.find(({ mail }) => mail === selectedMail);
-  
+      const applicant = applicants.find(({ mail }) => mail === selectedMail);
+
       $(":text[name]:visible").val(applicant?.mail);
       applicant?.profilePhotoId &&
         $("#_profilePhoto").attr(
           "src",
           `/mar/query/getfile?fileid=${applicant.profilePhotoId}`
         );
-      /on|true/.test(window.autoSubmitForms?.login) && $("#btnVerify").trigger("click");
+      /on|true/.test(autoSubmitForms?.login) && $("#btnVerify").trigger("click");
     }
-  
+
     #injectProfilePhotoUploadFeature() {
       $(`
         <div class="vstack align-items-center gap-2">
@@ -688,10 +592,10 @@ const visaConfigs = {
         .on("change", "#_profilePhotoFile", () => this.#uploadProfilePhoto())
         .on("click", "#_copyProfilePhotoId", () => this.#copyProfilePhotoId());
     }
-  
+
     #uploadProfilePhoto() {
       const target = $("#_profilePhotoFile");
-  
+
       const [file] = target.prop("files");
       file &&
         $.post({
@@ -726,7 +630,7 @@ const visaConfigs = {
           },
         });
     }
-  
+
     #copyProfilePhotoId() {
       alertify.set("notifier", "position", "top-center");
       const profilePhotoId = $("#_profilePhotoId").val();
@@ -738,12 +642,12 @@ const visaConfigs = {
       }
     }
   }
-  
+
   class LoginCaptchaBot {
     start() {
       console.log(`${this.constructor.name} started`);
-  
-      this#/makeLoaderDismissableAndTranslucent();
+
+      this.#makeLoaderDismissableAndTranslucent();
       this.#removeRandomnessFromUi();
       this.#enableCopyPasteInInputs();
       const applicant = this.#getActiveApplicant();
@@ -751,7 +655,7 @@ const visaConfigs = {
       this.#setPassword(applicant);
       this.#solveCaptcha();
     }
-  
+
     #makeLoaderDismissableAndTranslucent() {
       $(`
         <button class="btn btn-secondary position-absolute" onclick="window.HideLoader();"
@@ -760,11 +664,11 @@ const visaConfigs = {
       `).appendTo(".global-overlay-loader");
       $(".global-overlay").css("background-color", "rgba(0 0 0 / 30%)");
     }
-  
+
     #removeRandomnessFromUi() {
       $("body > .row > [class^=col-]").hide();
       $("body > .row > :has(form)").addClass("mx-auto");
-  
+
       $("#captcha-main-div").addClass("d-flex flex-column");
       $("#captcha-main-div > .pwd-div:has(form)")
         .addClass("order-0")
@@ -772,16 +676,16 @@ const visaConfigs = {
       $("#captcha-main-div > .main-div-container").addClass("order-1");
       $("#captcha-main-div > .pwd-div:not(:has(*))").hide();
     }
-  
+
     #enableCopyPasteInInputs() {
       $(".entry-disabled:visible").off("copy paste");
     }
-  
+
     #getActiveApplicant() {
       const activemail = $(":contains(Email:) > b").text();
-      return window.applicants.find(({ mail }) => mail === activemail);
+      return applicants.find(({ mail }) => mail === activemail);
     }
-  
+
     #markTabWithCurrentUser(applicant) {
       applicant?.name && (document.title = applicant.name);
       applicant?.profilePhotoId &&
@@ -790,26 +694,26 @@ const visaConfigs = {
           .css({ width: "128px", height: "128px", objectFit: "cover" })
           .attr("src", `/mar/query/getfile?fileid=${applicant.profilePhotoId}`);
     }
-  
+
     #setPassword(applicant) {
       $(":password:visible").val(applicant?.password);
     }
-  
+
     #solveCaptcha() {
-      if (!(/on|true/.test(window.captcha.enabled) && window.captcha.apiKey)) return;
-  
+      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) return;
+
       const target = this.#getCaptchaTarget();
       const grid = this.#getCaptchaGrid();
-  
+
       const extractCaptchaGridData = (grid) =>
         Object.fromEntries(grid.map((img) => img.src).entries());
-  
+
       const onSuccess = (result) => {
         if (result.status === "solved") {
           Object.entries(result.solution).forEach(
             ([index, value]) => value === target && grid[index].click()
           );
-          /on|true/.test(window.autoSubmitForms?.loginCaptcha) &&
+          /on|true/.test(autoSubmitForms?.loginCaptcha) &&
             $("#btnVerify").trigger("click");
         } else {
           onError("captchaerror", result);
@@ -819,10 +723,10 @@ const visaConfigs = {
         console.error(type, data);
         $(".validation-summary-valid").html("<b>Failed to solve captcha.</b>");
       };
-  
+
       $.post({
         url: "https://pro.nocaptchaai.com/solve",
-        headers: { apiKey: window.captcha.apiKey },
+        headers: { apiKey: captcha.apiKey },
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({
@@ -841,7 +745,7 @@ const visaConfigs = {
         },
         complete(xhr, state) {
           this._loading?.remove();
-  
+
           switch (state) {
             case "success":
               onSuccess(xhr.responseJSON);
@@ -854,7 +758,7 @@ const visaConfigs = {
         },
       });
     }
-  
+
     #getCaptchaTarget() {
       return $(".box-label")
         .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
@@ -862,7 +766,7 @@ const visaConfigs = {
         .text()
         .replace(/\D+/, "");
     }
-  
+
     #getCaptchaGrid() {
       return $(":has(> .captcha-img):visible")
         .get()
@@ -881,21 +785,21 @@ const visaConfigs = {
         .map((element) => element.firstElementChild);
     }
   }
-  
+
   class AppointmentCaptchaBot {
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
       this.#solveCaptcha();
     }
-  
+
     #hidePreloader() {
       $(".preloader").hide();
     }
-  
+
     #makeLoaderDismissable() {
       $(`
         <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
@@ -903,27 +807,27 @@ const visaConfigs = {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
     }
-  
+
     #removeRandomnessFromUi() {
       $(".row:has(> .captcha-div) > [class^=col-]").hide();
       $(".captcha-div").addClass("mx-auto");
     }
-  
+
     #solveCaptcha() {
-      if (!(/on|true/.test(window.captcha.enabled) && window.captcha.apiKey)) return;
-  
+      if (!(/on|true/.test(captcha.enabled) && captcha.apiKey)) return;
+
       const target = this.#getCaptchaTarget();
       const grid = this.#getCaptchaGrid();
-  
+
       const extractCaptchaGridData = (grid) =>
         Object.fromEntries(grid.map((img) => img.src).entries());
-  
+
       const onSuccess = (result) => {
         if (result.status === "solved") {
           Object.entries(result.solution).forEach(
             ([index, value]) => value === target && grid[index].click()
           );
-          /on|true/.test(window.autoSubmitForms?.appointmentCaptcha) &&
+          /on|true/.test(autoSubmitForms?.appointmentCaptcha) &&
             $("#btnVerify").trigger("click");
         } else {
           onError("captchaerror", result);
@@ -933,10 +837,10 @@ const visaConfigs = {
         console.error(type, data);
         $(".validation-summary-valid").html("<b>Failed to solve captcha.</b>");
       };
-  
+
       $.post({
         url: "https://pro.nocaptchaai.com/solve",
-        headers: { apiKey: window.captcha.apiKey },
+        headers: { apiKey: captcha.apiKey },
         contentType: "application/json",
         dataType: "json",
         data: JSON.stringify({
@@ -955,7 +859,7 @@ const visaConfigs = {
         },
         complete(xhr, state) {
           this._loading?.remove();
-  
+
           switch (state) {
             case "success":
               onSuccess(xhr.responseJSON);
@@ -968,7 +872,7 @@ const visaConfigs = {
         },
       });
     }
-  
+
     #getCaptchaTarget() {
       return $(".box-label")
         .sort((a, b) => getComputedStyle(b).zIndex - getComputedStyle(a).zIndex)
@@ -976,7 +880,7 @@ const visaConfigs = {
         .text()
         .replace(/\D+/, "");
     }
-  
+
     #getCaptchaGrid() {
       return $(":has(> .captcha-img):visible")
         .get()
@@ -995,18 +899,17 @@ const visaConfigs = {
         .map((element) => element.firstElementChild);
     }
   }
-  
+
   class SlotSelectionBot {
     #slotCache = new Map();
-    #slotSelected = false; // Flag to prevent multiple slot submissions
-  
+    #slotSelected = false;
+
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
-      // Override OnAppointmentdateChange, but disable it after first slot selection
       Object.assign(global, {
         OnAppointmentdateChange: (date) => {
           if (!this.#slotSelected) {
@@ -1018,11 +921,11 @@ const visaConfigs = {
       });
       this.#prefetchSlots();
     }
-  
+
     #hidePreloader() {
       $(".preloader").hide();
     }
-  
+
     #makeLoaderDismissable() {
       $(`
         <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
@@ -1030,7 +933,7 @@ const visaConfigs = {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
     }
-  
+
     #removeRandomnessFromUi() {
       $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
       $("#div-main > :has(form)").addClass("mx-auto");
@@ -1040,7 +943,7 @@ const visaConfigs = {
         .removeClass((_, className) => className.match(/m[tb]-\d/g));
       $("div:has(> #btnSubmit)").addClass("mt-5");
     }
-  
+
     async #fetchSlotsWithDelay(url) {
       return new Promise((resolve) => {
         $.ajax({
@@ -1057,41 +960,40 @@ const visaConfigs = {
         );
       });
     }
-  
+
     async #prefetchSlots() {
       $(async () => {
         const allowedDates = global.availDates.ad
           .filter((it) => it.AppointmentDateType === 0)
           .sort((a, b) => new Date(a.DateText) - new Date(b.DateText));
-  
+
         if (!allowedDates.length) {
           console.error("No allowed dates available.");
           return;
         }
-  
+
         const dataParam = encodeURIComponent(
           new URLSearchParams(location.search).get("data")
         );
-  
+
         global.ShowLoader();
         let earliestValidDate = null;
         let earliestAvailableSlots = null;
-  
-        // Process dates sequentially with a delay to avoid 429 errors
+
         for (const date of allowedDates) {
           if (this.#slotSelected) {
             console.log("Slot already selected, stopping further fetches.");
             break;
           }
-  
+
           const url = `/mar/appointment/GetAvailableSlotsByDate?data=${dataParam}&appointmentDate=${date.DateText}`;
           console.log(`Fetching slots for ${date.DateText}...`);
           const result = await this.#fetchSlotsWithDelay(url);
-  
+
           if (result.success && result.data.success) {
             const availableSlots = result.data.data.filter((s) => s.Count > 0);
             this.#slotCache.set(date.DateText, availableSlots);
-  
+
             if (availableSlots.length > 0) {
               if (
                 !earliestValidDate ||
@@ -1104,20 +1006,19 @@ const visaConfigs = {
           } else {
             console.error(`Error fetching slots for ${date.DateText}: ${result.error || result.data.err}`);
           }
-  
-          // Delay between requests to avoid 429 errors (1 second)
+
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-  
+
         global.HideLoader();
-  
+
         if (earliestValidDate && earliestAvailableSlots) {
           const datePicker = $(".k-datepicker:visible .k-input").data(
             "kendoDatePicker"
           );
           datePicker.value(earliestValidDate);
           datePicker.trigger("change");
-  
+
           this.#sendSlotAvailabilityNotification();
           this.#selectAndSubmitNearestSlot(earliestValidDate);
         } else {
@@ -1125,13 +1026,13 @@ const visaConfigs = {
         }
       });
     }
-  
+
     #sendSlotAvailabilityNotification() {
-      const category = visaConfigs[window.applicants[0].config].visaSubName;
+      const category = visaConfigs[applicants[0].config].visaSubName;
       const categoryType = localStorage.getItem("categoryName") || "Normal";
-      const location = visaConfigs[window.applicants[0].config].locationName;
+      const location = visaConfigs[applicants[0].config].locationName;
       const validCategories = ["Normal", "Premium", "Prime Time"];
-  
+
       if (!categoryType || !validCategories.includes(categoryType)) {
         console.error(
           `Invalid or missing category in localStorage. Expected one of ${validCategories.join(
@@ -1140,7 +1041,7 @@ const visaConfigs = {
         );
         return;
       }
-  
+
       let slotsByDateMessage = "";
       const sortedDates = Array.from(this.#slotCache.keys()).sort(
         (a, b) => new Date(a) - new Date(b)
@@ -1152,22 +1053,22 @@ const visaConfigs = {
           slotsByDateMessage += `${date}\n${slotTimes}\n\n`;
         }
       }
-  
+
       if (!slotsByDateMessage) {
         console.error("No slots available to report in notification.");
         return;
       }
-  
+
       const message = `**Slot Selection**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${slotsByDateMessage}By: @zaemch 🚀`;
-      window.sendTelegramMessage(message);
+      sendTelegramMessage(message);
     }
-  
+
     #selectAndSubmitNearestSlot(apptDate) {
       if (this.#slotSelected) {
         console.log("Slot already selected, skipping submission.");
         return;
       }
-  
+
       const dataParam = encodeURIComponent(
         new URLSearchParams(location.search).get("data")
       );
@@ -1175,7 +1076,7 @@ const visaConfigs = {
         type: "POST",
         url: `/mar/appointment/GetAvailableSlotsByDate?data=${dataParam}&appointmentDate=${apptDate}`,
         dataType: "json",
-        async: false, // Synchronous to ensure immediate execution
+        async: false,
         success: (data) => {
           if (data.success) {
             const availableSlots = data.data.filter((s) => s.Count > 0);
@@ -1188,23 +1089,23 @@ const visaConfigs = {
                   ? current
                   : best;
               }, availableSlots[0]);
-  
+
               const slotDropDown = $(".k-dropdown:visible > .form-control").data(
                 "kendoDropDownList"
               );
               slotDropDown.setDataSource(data.data);
               slotDropDown.value(selectedSlot.Id);
-  
+
               speechSynthesis.speak(
                 new SpeechSynthesisUtterance("Rendez-vous disponible !!!")
               );
               GM_setValue("selected_slot", selectedSlot.Name);
               GM_setValue("selected_date", apptDate);
-  
-              this.#slotSelected = true; // Mark slot as selected
-  
-              if (/on|true/.test(window.autoSubmitForms?.slotSelection)) {
-                $("#btnSubmit").trigger("click"); // Immediate submit
+
+              this.#slotSelected = true;
+
+              if (/on|true/.test(autoSubmitForms?.slotSelection)) {
+                $("#btnSubmit").trigger("click");
               }
             } else {
               console.error(`No available slots for date: ${apptDate}`);
@@ -1225,13 +1126,13 @@ const visaConfigs = {
         },
       });
     }
-  
+
     #selectCachedSlot(apptDate) {
       if (this.#slotSelected) {
         console.log("Slot already selected, ignoring date change.");
         return false;
       }
-  
+
       const slotDropDown = $(".k-dropdown:visible > .form-control").data(
         "kendoDropDownList"
       );
@@ -1240,7 +1141,7 @@ const visaConfigs = {
         slotDropDown.setDataSource([]);
         return false;
       }
-  
+
       const dataParam = encodeURIComponent(
         new URLSearchParams(location.search).get("data")
       );
@@ -1269,18 +1170,18 @@ const visaConfigs = {
         },
       });
     }
-  
+
     #selectSlotTime(slots, availableSlots, apptDate) {
       if (this.#slotSelected) {
         console.log("Slot already selected, skipping slot time selection.");
         return;
       }
-  
+
       if (!availableSlots.length) {
         console.error(`No available slots for date: ${apptDate}`);
         return;
       }
-  
+
       const selectedSlot = availableSlots.reduce((best, current) => {
         const bestTime = best.Name;
         const currentTime = current.Name;
@@ -1289,74 +1190,74 @@ const visaConfigs = {
           ? current
           : best;
       }, availableSlots[0]);
-  
+
       if (selectedSlot) {
         speechSynthesis.speak(
           new SpeechSynthesisUtterance("Rendez-vous disponible !!!")
         );
-  
+
         const slotDropDown = $(".k-dropdown:visible > .form-control").data(
           "kendoDropDownList"
         );
         slotDropDown.setDataSource(slots);
         slotDropDown.value(selectedSlot.Id);
-  
+
         GM_setValue("selected_slot", selectedSlot.Name);
         GM_setValue("selected_date", apptDate);
-  
+
         window.print();
-  
-        this.#slotSelected = true; // Mark slot as selected
-  
-        if (/on|true/.test(window.autoSubmitForms?.slotSelection)) {
+
+        this.#slotSelected = true;
+
+        if (/on|true/.test(autoSubmitForms?.slotSelection)) {
           $(() => $("#btnSubmit").trigger("click"));
         }
       }
     }
   }
-  
+
   class ApplicantSelectionBot {
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       $(".modal:not(#logoutModal)").on("show.bs.modal", (evt) =>
         evt.preventDefault()
       );
-  
+
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
-  
+
       const applicant = this.#getActiveApplicant();
-  
+
       applicant?.profilePhotoId &&
         $("#ApplicantPhotoId").val(applicant.profilePhotoId),
         $("#uploadfile-1-preview").attr(
           "src",
           `/mar/query/getfile?fileid=${applicant.profilePhotoId}`
         );
-  
+
       $("div[id^=app-]").first().trigger("click");
-  
+
       this.#sendApplicantSelectionNotification(applicant);
-  
+
       this.#remonitorOtp();
-  
+
       $(() => {
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
         $("#TravelDate").data("kendoDatePicker").value(oneMonthLater);
-  
+
         $("#EmailCode").prop("oncopy", null).prop("onpaste", null);
       });
     }
-  
+
     #sendApplicantSelectionNotification(applicant) {
       const category = visaConfigs[applicant.config].visaSubName;
       const categoryType = localStorage.getItem("categoryName");
       const location = visaConfigs[applicant.config].locationName;
       const validCategories = ["Normal", "Premium", "Prime Time"];
-  
+
       if (!categoryType || !validCategories.includes(categoryType)) {
         console.error(
           `Invalid or missing category in localStorage. Expected one of ${validCategories.join(
@@ -1365,18 +1266,18 @@ const visaConfigs = {
         );
         return;
       }
-  
+
       const selectedDate = GM_getValue("selected_date", "Unknown");
       const selectedSlot = GM_getValue("selected_slot", "Unknown");
-  
+
       const message = `**Applicant Selection**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
-      window.sendTelegramMessage(message);
+      sendTelegramMessage(message);
     }
-  
+
     #hidePreloader() {
       $(".preloader").hide();
     }
-  
+
     #makeLoaderDismissable() {
       $(`
         <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
@@ -1384,26 +1285,26 @@ const visaConfigs = {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
     }
-  
+
     #removeRandomnessFromUi() {
       $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
       $("#div-main > :has(form)")
         .removeClass((_, className) => className.match(/col-(?:sm|md)-\d/g))
         .addClass(["col-md-6", "mx-auto"]);
     }
-  
+
     #getActiveApplicant() {
       const activeMail = $(".avatar + > p.small").text();
-      return window.applicants.find(({ mail }) => mail === activeMail);
+      return applicants.find(({ mail }) => mail === activeMail);
     }
-  
+
     #remonitorOtp() {
       const stop = () => {
         $(":is(.spinner-grow, .bi-check-lg):has(+ #EmailCode)").remove();
         GM_removeValueChangeListener(this._fetchOtpListenerId);
         GM_setValue("code_otp");
       };
-  
+
       stop();
       $(`
         <span class="spinner-grow spinner-grow-sm text-primary ms-2"></span>
@@ -1417,19 +1318,19 @@ const visaConfigs = {
             $(`<i class="bi bi-check-lg text-success"></i>`).insertBefore(
               "#EmailCode"
             );
-            /on|true/.test(window.autoSubmitForms?.applicantSelection) &&
+            /on|true/.test(autoSubmitForms?.applicantSelection) &&
               $("#btnSubmit").trigger("click");
           }
         }
       );
     }
   }
-  
+
   class GmailBot {
     install() {
       setInterval(() => this.#displayUnreadEmails(), 150);
     }
-  
+
     #displayUnreadEmails() {
       const emails = document.querySelectorAll(".zE");
       if (emails.length > 0) {
@@ -1445,7 +1346,7 @@ const visaConfigs = {
         }
       }
     }
-  
+
     #extractEmailContent() {
       const emailBody = document.querySelector(".a3s");
       if (emailBody) {
@@ -1464,12 +1365,12 @@ const visaConfigs = {
       }
     }
   }
-  
+
   function sendTelegramMessage(message) {
     const botToken = "7593996389:AAFcj0hVd8jYBV4XeHZ3HuXwEVV0PpR_y4o";
     const chatId = "-4632849048";
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-  
+
     $.ajax({
       type: "POST",
       url: url,
@@ -1486,27 +1387,27 @@ const visaConfigs = {
       },
     });
   }
-  
+
   class PaymentResponseBot {
     start() {
       console.log(`${this.constructor.name} started`);
-  
+
       const applicant = this.#getActiveApplicant();
       this.#hidePreloader();
       this.#makeLoaderDismissable();
       this.#removeRandomnessFromUi();
       this.#sendPaymentResponseNotification(applicant);
     }
-  
+
     #getActiveApplicant() {
       const activeMail = $(".avatar + > p.small").text();
-      return window.applicants.find(({ mail }) => mail === activeMail);
+      return applicants.find(({ mail }) => mail === activeMail);
     }
-  
+
     #hidePreloader() {
       $(".preloader").hide();
     }
-  
+
     #makeLoaderDismissable() {
       $(`
         <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
@@ -1514,18 +1415,18 @@ const visaConfigs = {
           Hide Loader</button>
       `).appendTo(".global-overlay-loader");
     }
-  
+
     #removeRandomnessFromUi() {
       $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
       $("#div-main > :has(.card)").addClass("mx-auto");
     }
-  
+
     #sendPaymentResponseNotification(applicant) {
       const category = visaConfigs[applicant.config].visaSubName;
       const categoryType = localStorage.getItem("categoryName");
       const location = visaConfigs[applicant.config].locationName;
       const validCategories = ["Normal", "Premium", "Prime Time"];
-  
+
       if (!categoryType || !validCategories.includes(categoryType)) {
         console.error(
           `Invalid or missing category in localStorage. Expected one of ${validCategories.join(
@@ -1534,15 +1435,15 @@ const visaConfigs = {
         );
         return;
       }
-  
+
       const selectedDate = GM_getValue("selected_date", "Unknown");
       const selectedSlot = GM_getValue("selected_slot", "Unknown");
-  
+
       const message = `**Congratulation**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
-      window.sendTelegramMessage(message);
+      sendTelegramMessage(message);
     }
   }
-  
+
   // Main execution logic
   if (location.hostname === "www.blsspainmorocco.net") {
     switch (true) {
@@ -1571,27 +1472,28 @@ const visaConfigs = {
   } else if (location.hostname === "mail.google.com") {
     new GmailBot().install();
   }
-  
+
+  // Navigation button logic
   if (matchPath("/mar") || matchPath("/MAR") || matchPath("/mar/home") || matchPath("/MAR/home") || matchPath("/mar/home/index") || matchPath("/MAR/home/index")) {
     const navContainer = document.querySelector("nav.navbar, .navbar-expand-xl");
     if (navContainer) {
       navContainer.style.display = "flex";
       navContainer.style.alignItems = "center";
       navContainer.style.justifyContent = "space-between";
-  
+
       creatBTN(
         "GO TO LOGIN",
         "nav.navbar, .navbar-expand-xl",
         () => redirectTo("https://www.blsspainmorocco.net/MAR/account/login"),
         "#D4A017"
       );
-  
+
       const button = navContainer.querySelector("button:last-of-type");
       if (button) {
         button.style.margin = "0 auto";
         button.style.order = "1";
       }
-  
+
       const logo = navContainer.querySelector(".navbar-brand");
       const search = navContainer.querySelector(
         ".search, [class*='search'], [class*='icon']"
@@ -1602,6 +1504,7 @@ const visaConfigs = {
       console.error("Navbar container not found. Button not injected.");
     }
   }
-  
-  // Expose sendTelegramMessage to global scope
-  window.sendTelegramMessage = sendTelegramMessage;
+}
+
+// Expose initialize function
+unsafeWindow.initializeMAFIAMAR = initializeMAFIAMAR;
