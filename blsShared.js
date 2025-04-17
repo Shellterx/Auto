@@ -97,7 +97,7 @@
     window.location.href = url;
   }
 
-  function selectDropdown(id, value, maxAttempts = 10, interval = 500) {
+  function selectDropdown(id, value, maxAttempts = 20, interval = 500) {
     let attempts = 0;
     const trySelect = () => {
       const dropdown = $(`#${id}`).data("kendoDropDownList");
@@ -129,12 +129,12 @@
           var labelId = $(this).attr("id") + "_label";
           if ($("#" + labelId).is(":visible")) {
             var dropdownlistId = $(this).attr("id");
-            var labelText = $("#" + labelId).text();
+            var labelText = $("#" + labelId).text().trim();
             switch (labelText) {
-              case "Category*": categoryId = dropdownlistId; break;
-              case "Location*": locationId = dropdownlistId; break;
-              case "Visa Type*": visaTypeId = dropdownlistId; break;
-              case "Visa Sub Type*": visaSubTypeId = dropdownlistId; break;
+              case "Category*": case "Catégorie*": categoryId = dropdownlistId; break;
+              case "Location*": case "Lieu*": locationId = dropdownlistId; break;
+              case "Visa Type*": case "Type de visa*": visaTypeId = dropdownlistId; break;
+              case "Visa Sub Type*": case "Sous-type de visa*": visaSubTypeId = dropdownlistId; break;
             }
           }
         });
@@ -179,34 +179,37 @@
             const visaSubName = applicantConfig.visaSubName;
             let categoryName = localStorage.getItem("categoryName") || "Normal";
 
-            const validCategories = categoryData.map(c => c.Name);
-            if (!validCategories.includes(categoryName)) {
+            // Validate category with case-insensitive comparison
+            const validCategories = categoryData.map(c => c.Name.toLowerCase());
+            if (!validCategories.includes(categoryName.toLowerCase())) {
               categoryName = "Normal";
               localStorage.setItem("categoryName", categoryName);
             }
 
-            var selectedLocation = locationData.find(l => l.Name === locationName);
+            console.log("Category:", categoryName, "Available:", categoryData);
+
+            const selectedLocation = locationData.find(l => l.Name === locationName);
             if (!selectedLocation) {
               console.error(`Location ${locationName} not found in locationData`);
               return;
             }
             selectDropdown(locationId, selectedLocation.Id);
 
-            var selectedVisaType = visaTypeFilterData.find(v => v.Name === visaTypeName);
+            const selectedVisaType = visaTypeFilterData.find(v => v.Name === visaTypeName);
             if (!selectedVisaType) {
               console.error(`Visa Type ${visaTypeName} not found in visaTypeFilterData`);
               return;
             }
             selectDropdown(visaTypeId, selectedVisaType.Id);
 
-            var selectedVisaSub = visasubIdFilterData.find(v => v.Name === visaSubName);
+            const selectedVisaSub = visasubIdFilterData.find(v => v.Name === visaSubName);
             if (!selectedVisaSub) {
               console.error(`Visa Sub Type ${visaSubName} not found in visasubIdFilterData`);
               return;
             }
             selectDropdown(visaSubTypeId, selectedVisaSub.Id);
 
-            var selectedCategory = categoryData.find(c => c.Name === categoryName);
+            const selectedCategory = categoryData.find(c => c.Name.toLowerCase() === categoryName.toLowerCase());
             if (!selectedCategory) {
               console.error(`Category ${categoryName} not found in categoryData`);
               return;
@@ -215,11 +218,11 @@
 
             if (window.applicants[0].membersName !== "I") {
               $("#familyDisclaimer").remove();
-              var familyElement = $("#" + familyId);
+              const familyElement = $("#" + familyId);
               familyElement.click();
               window.OnFamilyAccept && window.OnFamilyAccept();
 
-              var selectedMembers = applicantsNoData.find(m => m.Name === window.applicants[0].membersName);
+              const selectedMembers = applicantsNoData.find(m => m.Name === window.applicants[0].membersName);
               if (!selectedMembers) {
                 console.error(`Members ${window.applicants[0].membersName} not found in applicantsNoData`);
                 return;
@@ -228,7 +231,7 @@
             }
 
             if (/on|true/.test(window.autoSubmitForms?.visaType)) {
-              $("#btnSubmit").click();
+              setTimeout(() => $("#btnSubmit").click(), 1000);
             } else {
               console.log("Auto-submit for Visa Type is disabled");
             }
@@ -239,7 +242,7 @@
           clearInterval(interval);
           console.error("CAT timed out: Required elements not found after 30s");
         }
-      }, 300);
+      }, 500);
     }
   }
 
@@ -427,7 +430,7 @@
     }
 
     #getActiveApplicant() {
-      const activemail = $(":contains(Email:) > b").text();
+      const activemail = $(":contains(Email:) > b, :contains(E-mail:) > b").text().trim();
       return window.applicants.find(({ mail }) => mail === activemail);
     }
 
@@ -441,7 +444,21 @@
     }
 
     #setPassword(applicant) {
-      $(":password:visible").val(applicant?.password);
+      const maxAttempts = 10;
+      let attempts = 0;
+      const trySetPassword = () => {
+        const passwordField = $(":password:visible, input[type='password']:visible");
+        if (passwordField.length && applicant?.password) {
+          passwordField.val(applicant.password);
+          console.log("Password set for", applicant.mail);
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          setTimeout(trySetPassword, 500);
+        } else {
+          console.error("Failed to set password: Field not found or no password");
+        }
+      };
+      trySetPassword();
     }
 
     #solveCaptcha() {
@@ -642,6 +659,8 @@
               beforeSend: (xhr) => {
                 const token = $("input[name='__RequestVerificationToken']").val();
                 if (token) xhr.setRequestHeader("RequestVerificationToken", token);
+                const wafToken = $("input[name='aws-waf-token']").val();
+                if (wafToken) xhr.setRequestHeader("aws-waf-token", wafToken);
               },
             }).then(
               (response) => response,
@@ -689,7 +708,6 @@
             console.error("No available slots found");
           }
         });
-      });
     }
 
     #sendSlotAvailabilityNotification() {
@@ -733,6 +751,8 @@
         beforeSend: (xhr) => {
           const token = $("input[name='__RequestVerificationToken']").val();
           if (token) xhr.setRequestHeader("RequestVerificationToken", token);
+          const wafToken = $("input[name='aws-waf-token']").val();
+          if (wafToken) xhr.setRequestHeader("aws-waf-token", wafToken);
         },
         success: (data) => {
           if (data.success) {
@@ -787,6 +807,8 @@
         beforeSend: (xhr) => {
           const token = $("input[name='__RequestVerificationToken']").val();
           if (token) xhr.setRequestHeader("RequestVerificationToken", token);
+          const wafToken = $("input[name='aws-waf-token']").val();
+          if (wafToken) xhr.setRequestHeader("aws-waf-token", wafToken);
         },
         success: (data) => {
           if (data.success) {
@@ -1099,62 +1121,21 @@
     document.head.appendChild(link);
   }
 
-  // Entry Point
-  window.initMafiaBot = function (path) {
-    try {
-      // Load CSS
-      loadCSS("https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css");
-      loadCSS("https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css");
+  // Expose classes and functions
+  window.LoginBot = LoginBot;
+  window.LoginCaptchaBot = LoginCaptchaBot;
+  window.AppointmentCaptchaBot = AppointmentCaptchaBot;
+  window.CAT = CAT;
+  window.SlotSelectionBot = SlotSelectionBot;
+  window.ApplicantSelectionBot = ApplicantSelectionBot;
+  window.GmailBot = GmailBot;
+  window.PaymentResponseBot = PaymentResponseBot;
+  window.handleNewAppointmentPage = handleNewAppointmentPage;
+  window.handleModalsAndRedirects = handleModalsAndRedirects;
 
-      // Handle modals and redirects
-      handleModalsAndRedirects();
-
-      // Reload on error pages
-      reloadPageIfError();
-
-      // Page-specific logic
-      if (location.hostname === "www.blsspainmorocco.net") {
-        if (matchPath("/mar/account/login") || matchPath("/MAR/account/login")) {
-          new LoginBot().start();
-        } else if (matchPath("/mar/newcaptcha/logincaptcha") || matchPath("/MAR/newcaptcha/logincaptcha")) {
-          new LoginCaptchaBot().start();
-        } else if (matchPath("/mar/Appointment/AppointmentCaptcha") || matchPath("/MAR/Appointment/AppointmentCaptcha")) {
-          new AppointmentCaptchaBot().start();
-        } else if (matchPath("/mar/Appointment/VisaType") || matchPath("/MAR/Appointment/VisaType")) {
-          new CAT().start();
-        } else if (matchPath("/mar/Appointment/SlotSelection") || matchPath("/MAR/Appointment/SlotSelection")) {
-          new SlotSelectionBot().start();
-        } else if (matchPath("/mar/Appointment/ApplicantSelection") || matchPath("/MAR/Appointment/ApplicantSelection")) {
-          new ApplicantSelectionBot().start();
-        } else if (matchPath("/mar/Appointment/payment/paymentresponse") || matchPath("/MAR/Appointment/payment/paymentresponse")) {
-          new PaymentResponseBot().start();
-        } else if (matchPath("/mar/Appointment/NewAppointment") || matchPath("/MAR/Appointment/NewAppointment")) {
-          handleNewAppointmentPage();
-        } else if (matchPath("/mar") || matchPath("/MAR") || matchPath("/mar/home") || matchPath("/MAR/home") || matchPath("/mar/home/index") || matchPath("/MAR/home/index")) {
-          const navContainer = document.querySelector("nav.navbar, .navbar-expand-xl");
-          if (navContainer) {
-            navContainer.style.display = "flex";
-            navContainer.style.alignItems = "center";
-            navContainer.style.justifyContent = "space-between";
-            creatBTN("GO TO LOGIN", "nav.navbar, .navbar-expand-xl", () => redirectTo("https://www.blsspainmorocco.net/MAR/account/login"), "#D4A017");
-            const button = navContainer.querySelector("button:last-of-type");
-            if (button) {
-              button.style.margin = "0 auto";
-              button.style.order = "1";
-            }
-            const logo = navContainer.querySelector(".navbar-brand");
-            const search = navContainer.querySelector(".search, [class*='search'], [class*='icon']");
-            if (logo) logo.style.order = "0";
-            if (search) search.style.order = "2";
-          }
-        }
-      } else if (location.hostname === "mail.google.com") {
-        new GmailBot().install();
-      }
-    } catch (error) {
-      console.error("Error in initMafiaBot:", error);
-    }
-  };
+  // Load CSS
+  loadCSS("https://cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css");
+  loadCSS("https://cdn.jsdelivr.net/npm/alertifyjs/build/css/themes/default.min.css");
 
   // Initialize Alertify dialog
   alertify.minimalDialog || alertify.dialog("Confirmation", function () {
