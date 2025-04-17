@@ -1,6 +1,6 @@
-"use strict"; // new
+"use strict";
 
-// Dependency check (removed illegal return statement)
+// Dependency check
 if (!window.jQuery || !window.alertify || !window.axios) {
   console.error("Required dependencies (jQuery, alertify, axios) are not loaded.");
 } else {
@@ -10,26 +10,28 @@ if (!window.jQuery || !window.alertify || !window.axios) {
 function initializeMAFIAMAR() {
   console.log("Initializing MAFIAMAR core...");
 
-  // Access global variables
-  const applicants = unsafeWindow.applicants;
-  const visaConfigs = unsafeWindow.visaConfigs;
-  const captcha = unsafeWindow.captcha;
-  const autoSubmitForms = unsafeWindow.autoSubmitForms;
+  // Access global variables from window.MAFIAMAR
+  const MAFIAMAR = window.MAFIAMAR || {};
+  const applicants = MAFIAMAR.applicants;
+  const visaConfigs = MAFIAMAR.visaConfigs;
+  const captcha = MAFIAMAR.captcha;
+  const autoSubmitForms = MAFIAMAR.autoSubmitForms;
+  const storage = MAFIAMAR.storage;
 
-  if (!applicants || !visaConfigs || !captcha || !autoSubmitForms) {
-    console.error("Required global variables (applicants, visaConfigs, captcha, autoSubmitForms) are not defined.");
+  if (!applicants || !visaConfigs || !captcha || !autoSubmitForms || !storage) {
+    console.error("Required global variables (applicants, visaConfigs, captcha, autoSubmitForms, storage) are not defined.");
     return;
   }
 
   // Expose sendTelegramMessage to global scope
-  unsafeWindow.sendTelegramMessage = sendTelegramMessage;
+  window.sendTelegramMessage = sendTelegramMessage;
 
   // Core variables
   var locationName = visaConfigs[applicants[0].config].locationName;
   var visaTypeName = visaConfigs[applicants[0].config].visaTypeName;
   var visaSubName = visaConfigs[applicants[0].config].visaSubName;
   var membersName = applicants[0].membersName;
-  var categoryName = localStorage.getItem("categoryName") || "Normal";
+  var categoryName = storage.get("categoryName") || "Normal";
 
   // Category change logic
   if (
@@ -41,7 +43,7 @@ function initializeMAFIAMAR() {
     )
   ) {
     function changeCategory(newCategory) {
-      localStorage.setItem("categoryName", newCategory);
+      storage.set("categoryName", newCategory);
       window.location.href = "/mar/appointment/newappointment";
     }
 
@@ -83,7 +85,7 @@ function initializeMAFIAMAR() {
       let countdown = 10;
       let isPaused = false;
 
-      tryAgainLink.textContent = `Keep trying in the Actual Category: ${localStorage.getItem(
+      tryAgainLink.textContent = `Keep trying in the Actual Category: ${storage.get(
         "categoryName"
       )} in : (${countdown}s)`;
       tryAgainLink.style.width = "auto";
@@ -105,7 +107,7 @@ function initializeMAFIAMAR() {
       const countdownInterval = setInterval(() => {
         if (!isPaused) {
           countdown -= 1;
-          tryAgainLink.textContent = `Keep trying in the Actual Category: ${localStorage.getItem(
+          tryAgainLink.textContent = `Keep trying in the Actual Category: ${storage.get(
             "categoryName"
           )} (${countdown}s)`;
 
@@ -519,7 +521,6 @@ function initializeMAFIAMAR() {
     }
 
     #removeRandomnessFromUi() {
-      // Update selector based on current page structure
       const mainContainer = $(".container:has(form)");
       if (mainContainer.length) {
         mainContainer.find("> .row > [class^=col-]").hide();
@@ -565,7 +566,6 @@ function initializeMAFIAMAR() {
           </select>
         `);
 
-        // Update selector based on screenshot: target the container above the email input
         const $target = $("form .form-group:has(input[type='text'])");
         if ($target.length) {
           $select.insertAfter($target).on("change", () => this.#fillForm());
@@ -650,7 +650,6 @@ function initializeMAFIAMAR() {
         </div>
       `);
 
-      // Update selector: insert after the logo image
       const $logo = $("img[alt*='logo']");
       if ($logo.length) {
         photoSection.insertAfter($logo.parent());
@@ -1166,7 +1165,7 @@ function initializeMAFIAMAR() {
 
     #sendSlotAvailabilityNotification() {
       const category = visaConfigs[applicants[0].config].visaSubName;
-      const categoryType = localStorage.getItem("categoryName") || "Normal";
+      const categoryType = storage.get("categoryName") || "Normal";
       const location = visaConfigs[applicants[0].config].locationName;
       const validCategories = ["Normal", "Premium", "Prime Time"];
 
@@ -1237,8 +1236,8 @@ function initializeMAFIAMAR() {
               speechSynthesis.speak(
                 new SpeechSynthesisUtterance("Rendez-vous disponible !!!")
               );
-              GM_setValue("selected_slot", selectedSlot.Name);
-              GM_setValue("selected_date", apptDate);
+              storage.set("selected_slot", selectedSlot.Name);
+              storage.set("selected_date", apptDate);
 
               this.#slotSelected = true;
 
@@ -1349,8 +1348,8 @@ function initializeMAFIAMAR() {
         slotDropDown.setDataSource(slots);
         slotDropDown.value(selectedSlot.Id);
 
-        GM_setValue("selected_slot", selectedSlot.Name);
-        GM_setValue("selected_date", apptDate);
+        storage.set("selected_slot", selectedSlot.Name);
+        storage.set("selected_date", apptDate);
 
         window.print();
 
@@ -1416,7 +1415,7 @@ function initializeMAFIAMAR() {
 
     #sendApplicantSelectionNotification(applicant) {
       const category = visaConfigs[applicant.config].visaSubName;
-      const categoryType = localStorage.getItem("categoryName");
+      const categoryType = storage.get("categoryName");
       const location = visaConfigs[applicant.config].locationName;
       const validCategories = ["Normal", "Premium", "Prime Time"];
 
@@ -1429,8 +1428,8 @@ function initializeMAFIAMAR() {
         return;
       }
 
-      const selectedDate = GM_getValue("selected_date", "Unknown");
-      const selectedSlot = GM_getValue("selected_slot", "Unknown");
+      const selectedDate = storage.get("selected_date", "Unknown");
+      const selectedSlot = storage.get("selected_slot", "Unknown");
 
       const message = `**Applicant Selection**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
       sendTelegramMessage(message);
@@ -1453,255 +1452,157 @@ function initializeMAFIAMAR() {
 
     #removeRandomnessFromUi() {
       $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
-      $("#div-main > :has(form)")
-        .removeClass((_, className) => className.match(/col-(?:sm|md)-\d/g))
-        .addClass(["col-md-6", "mx-auto"]);
+      $("#div-main > :has(form)").addClass("mx-auto");
+      $("form > div:nth-child(2)")
+        .addClass("gap-4")
+        .children("div")
+        .removeClass((_, className) => className.match(/m[tb]-\d/g));
+      $("div:has(> #btnSubmit)").addClass("mt-5");
       console.log("Removed randomness from UI for applicant selection");
     }
 
     #getActiveApplicant() {
-      const activeMail = $(".avatar + > p.small").text();
-      const applicant = applicants.find(({ mail }) => mail === activeMail);
+      const activemail = $("#Email").val();
+      const applicant = applicants.find(({ mail }) => mail === activemail);
       if (applicant) {
         console.log("Active applicant:", applicant.name);
       } else {
-        console.log("No active applicant found for email:", activeMail);
+        console.log("No active applicant found for email:", activemail);
       }
       return applicant;
     }
 
     #remonitorOtp() {
-      const stop = () => {
-        $(":is(.spinner-grow, .bi-check-lg):has(+ #EmailCode)").remove();
-        GM_removeValueChangeListener(this._fetchOtpListenerId);
-        GM_setValue("code_otp");
+      const monitoredEmails = applicants.map(({ mail }) => mail);
+      const emails = shuffleArray([...new Set(monitoredEmails)]);
+
+      let pendingOtps = [];
+      let processedOtps = [];
+      let abortController = new AbortController();
+
+      const onChange = (key, _, newValue) => {
+        if (key.startsWith("otp_")) {
+          const [, email, otp] = key.match(/otp_(.+)_(\d+)/) || [];
+          if (otp && email) {
+            if (processedOtps.includes(otp)) {
+              console.log(`OTP ${otp} for ${email} already processed`);
+              return;
+            }
+
+            pendingOtps = pendingOtps.filter((item) => item.otp !== otp);
+            processedOtps.push(otp);
+
+            const applicant = applicants.find((a) => a.mail === email);
+            if (applicant) {
+              const message = `**OTP**\n\n${applicant.name}\n\n${otp}\n\nBy: @zaemch 🚀`;
+              sendTelegramMessage(message);
+              console.log(`Sent OTP notification for ${email}: ${otp}`);
+            }
+
+            const emailInput = $("#Email");
+            const otpInput = $("#EmailCode");
+            if (emailInput.val() === email && otpInput.length) {
+              otpInput.val(otp);
+              console.log(`Filled OTP input for ${email} with: ${otp}`);
+
+              if (/on|true/.test(autoSubmitForms?.applicantSelection)) {
+                const submitButton = $("#btnSubmit");
+                if (submitButton.length) {
+                  submitButton.trigger("click");
+                  console.log("Auto-submitted applicant selection form");
+                } else {
+                  console.error("#btnSubmit not found for auto-submit");
+                }
+              }
+            }
+          }
+        }
       };
 
-      stop();
-      $(`
-        <span class="spinner-grow spinner-grow-sm text-primary ms-2"></span>
-      `).insertBefore("#EmailCode");
-      this._fetchOtpListenerId = GM_addValueChangeListener(
-        "code_otp",
-        (_name, _prev, otp, remote) => {
-          if (remote && otp) {
-            stop();
-            $("#EmailCode").val(otp);
-            $(`<i class="bi bi-check-lg text-success"></i>`).insertBefore(
-              "#EmailCode"
-            );
-            if (/on|true/.test(autoSubmitForms?.applicantSelection)) {
-              $("#btnSubmit").trigger("click");
-              console.log("Auto-submitted applicant selection form with OTP");
+      emails.forEach((email) => {
+        const listenerId = storage.addListener(`otp_${email}_`, onChange);
+        console.log(`Added OTP listener for ${email}, listenerId: ${listenerId}`);
+      });
+
+      const fetchEmails = async (email) => {
+        try {
+          const response = await axios.get(
+            "https://www.blsspainmorocco.net/mar/email/list",
+            { signal: abortController.signal }
+          );
+
+          const messages = response.data?.data || [];
+          const otpMessage = messages.find((msg) =>
+            /Your OTP for login is \d+/.test(msg.subject)
+          );
+
+          if (otpMessage) {
+            const otpMatch = otpMessage.subject.match(/Your OTP for login is (\d+)/);
+            if (otpMatch) {
+              const otp = otpMatch[1];
+              pendingOtps.push({ email, otp });
+              storage.set(`otp_${email}_${otp}`, otp);
+              console.log(`Fetched OTP for ${email}: ${otp}`);
             }
           }
+        } catch (error) {
+          if (error.name !== "CanceledError") {
+            console.error(`Error fetching emails for ${email}:`, error.message);
+          }
         }
-      );
-      console.log("Started monitoring OTP");
+      };
+
+      const monitorEmails = async () => {
+        while (!abortController.signal.aborted) {
+          for (const email of emails) {
+            await fetchEmails(email);
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          }
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+        }
+      };
+
+      monitorEmails().catch((error) => {
+        console.error("Email monitoring stopped:", error.message);
+      });
+
+      console.log("Started monitoring OTP for emails:", emails);
     }
   }
 
-  class GmailBot {
-    install() {
-      setInterval(() => this.#displayUnreadEmails(), 150);
-    }
-
-    #displayUnreadEmails() {
-      const emails = document.querySelectorAll(".zE");
-      if (emails.length > 0) {
-        for (let i = 0; i < 3; i++) {
-          const email = emails[i];
-          const subject = email.querySelector(".bA4 span").textContent;
-          if (/blsspainmorocco|blsinternation/.test(subject)) {
-            email.click();
-            email.classList.remove("zE");
-            setTimeout(() => this.#extractEmailContent(), 300);
-            break;
-          }
-        }
-      }
-    }
-
-    #extractEmailContent() {
-      const emailBody = document.querySelector(".a3s");
-      if (emailBody) {
-        const content = emailBody.innerHTML;
-        if (content) {
-          const codeMatch = content.match(/\b(\d{6})\b/);
-          if (codeMatch) {
-            const code = codeMatch[1];
-            GM_setValue("code_otp", code);
-            const closeButton = document.querySelector(".nU.n1");
-            if (closeButton) {
-              closeButton.click();
-              console.log("Extracted OTP and closed email:", code);
-            }
-          }
-        }
-      }
-    }
-  }
-
+  // Telegram notification function
   function sendTelegramMessage(message) {
-    const botToken = "7593996389:AAFcj0hVd8jYBV4XeHZ3HuXwEVV0PpR_y4o";
-    const chatId = "-4632849048";
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+    const TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN"; // Replace with your bot token
+    const TELEGRAM_CHAT_ID = "YOUR_CHAT_ID"; // Replace with your chat ID
 
-    $.ajax({
-      type: "POST",
-      url: url,
-      data: {
-        chat_id: chatId,
+    axios
+      .post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        chat_id: TELEGRAM_CHAT_ID,
         text: message,
         parse_mode: "Markdown",
-      },
-      success: (response) => {
-        console.log("Telegram message sent:", response);
-      },
-      error: (xhr, status, error) => {
-        console.error("Failed to send Telegram message:", status, error);
-      },
-    });
+      })
+      .then(() => {
+        console.log("Telegram message sent successfully");
+      })
+      .catch((error) => {
+        console.error("Failed to send Telegram message:", error.message);
+      });
   }
 
-  class PaymentResponseBot {
-    start() {
-      console.log(`${this.constructor.name} started`);
-
-      const applicant = this.#getActiveApplicant();
-      this.#hidePreloader();
-      this.#makeLoaderDismissable();
-      this.#removeRandomnessFromUi();
-      this.#sendPaymentResponseNotification(applicant);
-    }
-
-    #getActiveApplicant() {
-      const activeMail = $(".avatar + > p.small").text();
-      const applicant = applicants.find(({ mail }) => mail === activeMail);
-      if (applicant) {
-        console.log("Active applicant:", applicant.name);
-      } else {
-        console.log("No active applicant found for email:", activeMail);
-      }
-      return applicant;
-    }
-
-    #hidePreloader() {
-      $(".preloader").hide();
-      console.log("Hid preloader");
-    }
-
-    #makeLoaderDismissable() {
-      $(`
-        <button class="btn btn-secondary position-absolute top-50 start-50 translate-middle-x mt-5"
-                onclick="window.HideLoader();">
-          Hide Loader</button>
-      `).appendTo(".global-overlay-loader");
-      console.log("Added dismissable loader button");
-    }
-
-    #removeRandomnessFromUi() {
-      $("#div-main > :is(:first-child, :last-child)").removeClass().hide();
-      $("#div-main > :has(.card)").addClass("mx-auto");
-      console.log("Removed randomness from UI for payment response");
-    }
-
-    #sendPaymentResponseNotification(applicant) {
-      const category = visaConfigs[applicant.config].visaSubName;
-      const categoryType = localStorage.getItem("categoryName");
-      const location = visaConfigs[applicant.config].locationName;
-      const validCategories = ["Normal", "Premium", "Prime Time"];
-
-      if (!categoryType || !validCategories.includes(categoryType)) {
-        console.error(
-          `Invalid or missing category in localStorage. Expected one of ${validCategories.join(
-            ", "
-          )}, but got: ${categoryType}`
-        );
-        return;
-      }
-
-      const selectedDate = GM_getValue("selected_date", "Unknown");
-      const selectedSlot = GM_getValue("selected_slot", "Unknown");
-
-      const message = `**Congratulation**\n\n${location}\n\n${categoryType}\n\n${category}\n\n${selectedDate}\n${selectedSlot}\n\nBy: @zaemch 🚀`;
-      sendTelegramMessage(message);
-      console.log("Sent payment response notification");
-    }
-  }
-
-  // Main execution logic
-  if (location.hostname === "www.blsspainmorocco.net") {
-    console.log("Running on BLS Spain Morocco site");
-    switch (true) {
-      case matchPath("/mar/account/login") || matchPath("/MAR/account/login"):
-        console.log("Detected login page, starting LoginBot");
-        new LoginBot().start();
-        break;
-      case matchPath("/mar/newcaptcha/logincaptcha") || matchPath("/MAR/newcaptcha/logincaptcha"):
-        console.log("Detected login captcha page, starting LoginCaptchaBot");
-        new LoginCaptchaBot().start();
-        break;
-      case matchPath("/mar/Appointment/AppointmentCaptcha") || matchPath("/MAR/Appointment/AppointmentCaptcha"):
-        console.log("Detected appointment captcha page, starting AppointmentCaptchaBot");
-        new AppointmentCaptchaBot().start();
-        break;
-      case matchPath("/mar/Appointment/VisaType") || matchPath("/MAR/Appointment/VisaType"):
-        console.log("Detected visa type page, starting CAT");
-        new CAT().start();
-        break;
-      case matchPath("/mar/Appointment/SlotSelection") || matchPath("/MAR/Appointment/SlotSelection"):
-        console.log("Detected slot selection page, starting SlotSelectionBot");
-        new SlotSelectionBot().start();
-        break;
-      case matchPath("/mar/Appointment/ApplicantSelection") || matchPath("/MAR/Appointment/ApplicantSelection"):
-        console.log("Detected applicant selection page, starting ApplicantSelectionBot");
-        new ApplicantSelectionBot().start();
-        break;
-      case matchPath("/mar/Appointment/payment/paymentresponse") || matchPath("/MAR/Appointment/payment/paymentresponse"):
-        console.log("Detected payment response page, starting PaymentResponseBot");
-        new PaymentResponseBot().start();
-        break;
-      default:
-        console.log("No matching path for bot execution");
-    }
-  } else if (location.hostname === "mail.google.com") {
-    console.log("Running on Gmail, installing GmailBot");
-    new GmailBot().install();
-  }
-
-  // Navigation button logic
-  if (matchPath("/mar") || matchPath("/MAR") || matchPath("/mar/home") || matchPath("/MAR/home") || matchPath("/mar/home/index") || matchPath("/MAR/home/index")) {
-    const navContainer = document.querySelector("nav.navbar, .navbar-expand-xl");
-    if (navContainer) {
-      navContainer.style.display = "flex";
-      navContainer.style.alignItems = "center";
-      navContainer.style.justifyContent = "space-between";
-
-      creatBTN(
-        "GO TO LOGIN",
-        "nav.navbar, .navbar-expand-xl",
-        () => redirectTo("https://www.blsspainmorocco.net/MAR/account/login"),
-        "#D4A017"
-      );
-
-      const button = navContainer.querySelector("button:last-of-type");
-      if (button) {
-        button.style.margin = "0 auto";
-        button.style.order = "1";
-      }
-
-      const logo = navContainer.querySelector(".navbar-brand");
-      const search = navContainer.querySelector(
-        ".search, [class*='search'], [class*='icon']"
-      );
-      if (logo) logo.style.order = "0";
-      if (search) search.style.order = "2";
-    } else {
-      console.error("Navbar container not found. Button not injected.");
-    }
+  // Route handling
+  if (matchPath("/mar/visa/visaType")) {
+    new CAT().start();
+  } else if (matchPath("/mar/account/login")) {
+    new LoginBot().start();
+  } else if (matchPath("/mar/account/logincaptcha")) {
+    new LoginCaptchaBot().start();
+  } else if (matchPath("/mar/appointment/appointmentcaptcha")) {
+    new AppointmentCaptchaBot().start();
+  } else if (matchPath("/mar/appointment/slotselection")) {
+    new SlotSelectionBot().start();
+  } else if (matchPath("/mar/appointment/applicantselection")) {
+    new ApplicantSelectionBot().start();
+  } else {
+    console.log("No matching route for MAFIAMAR automation");
   }
 }
-
-// Expose initialize function
-unsafeWindow.initializeMAFIAMAR = initializeMAFIAMAR; 
