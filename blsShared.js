@@ -72,6 +72,35 @@
     tryFill();
   }
 
+  // GO TO LOGIN Button
+  function injectGoToLoginButton() {
+    console.log("Attempting to inject GO TO LOGIN button");
+    const navbar = $(".nav.navbar, .navbar-collapse, .navbar-toggler, nav:visible").first();
+    if (!navbar.length) {
+      console.error("Navbar not found for GO TO LOGIN button");
+      return;
+    }
+
+    const button = $(`
+      <a href="https://www.blsspainmorocco.net/MAR/account/login" class="go-to-login btn" style="background-color: #D4A017; color: white; padding: 8px 16px; border-radius: 4px; text-decoration: none; order: 2;">
+        GO TO LOGIN
+      </a>
+    `);
+
+    const logo = navbar.find("img[alt*='logo'], .navbar-brand").first();
+    const searchIcon = navbar.find(".fa-search, [class*='search']").first();
+    if (logo.length && searchIcon.length) {
+      navbar.css({ display: "flex", "justify-content": "space-between", "align-items": "center" });
+      logo.css({ order: 1 });
+      searchIcon.css({ order: 3 });
+      button.insertAfter(logo);
+      console.log("GO TO LOGIN button injected between logo and search icon");
+    } else {
+      navbar.append(button);
+      console.log("GO TO LOGIN button appended to navbar (fallback)");
+    }
+  }
+
   // Classes
   class LoginBot {
     start() {
@@ -210,11 +239,22 @@
     }
 
     #setPassword(applicant) {
-      fillField(
-        ":password:visible, input[type='password']:visible, #Password, input[name='Password'], input[name='password']",
-        applicant?.password,
-        `Password for ${applicant?.mail}`
-      );
+      const maxAttempts = 15;
+      let attempts = 0;
+      const trySetPassword = () => {
+        const passwordField = $(":password:visible, input[type='password']:visible, #Password, input[name='Password'], input[name='password']");
+        if (passwordField.length && applicant?.password) {
+          passwordField.val(applicant.password);
+          console.log("Password set for", applicant.mail);
+        } else if (attempts < maxAttempts) {
+          attempts++;
+          console.log(`Retrying password set, attempt ${attempts}`);
+          setTimeout(trySetPassword, 500);
+        } else {
+          console.error("Failed to set password: Field not found or no password");
+        }
+      };
+      trySetPassword();
     }
 
     #solveCaptcha() {
@@ -577,10 +617,8 @@
           photoSelect.val(applicant.profilePhotoId);
           console.log(`Selected profile photo ID for ${applicant.mail}: ${applicant.profilePhotoId}`);
         } else if (photoField.length && applicant?.profilePhotoId) {
-          // Simulate file upload (assumes profilePhotoId is a URL or accessible file)
           console.log(`Attempting to set profile photo file for ${applicant.mail}`);
-          // Note: Actual file upload requires server-side access or pre-uploaded file
-          // Placeholder for file input simulation
+          // Placeholder for file upload simulation
         } else if (attempts < maxAttempts) {
           attempts++;
           console.log(`Retrying profile photo set, attempt ${attempts}`);
@@ -616,7 +654,6 @@
           clearInterval(interval);
           console.log("Found BLS Morocco email, clicking...");
           email.click();
-          // Placeholder for extracting appointment details
         } else if (attempts >= maxAttempts) {
           clearInterval(interval);
           console.error("GmailBot timed out: No BLS Morocco email found after 10s");
@@ -674,6 +711,7 @@
     console.log("Handling new appointment page");
     $("#btnNewAppointment, button:contains('New Appointment')").first().click();
   };
+  window.injectGoToLoginButton = injectGoToLoginButton;
 
   // Initialize Alertify
   alertify.minimalDialog || alertify.dialog("Confirmation", function () {
